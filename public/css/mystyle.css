@@ -1,0 +1,183 @@
+body {
+    background-color: lightblue;
+	background-image: url("/images/green-electricity1.png");
+	background-repeat: no-repeat;
+	background-position: right top;
+}
+
+h1 {
+	color: white;
+	background-color: blue;
+    margin-right: 250px;
+	text-align: left;
+	font-family: Arial, Helvetica, sans-serif;
+}
+h2 {
+    color: white;
+	background-color:Tomato;
+    margin-right: 250px;
+	text-align: left;
+	font-family: Arial, Helvetica, sans-serif;
+}
+
+p {
+    font-family: verdana;
+    font-size: 16px;
+	color: black;
+    text-align: left;
+}
+
+#para1{
+	background-color:rgb(255, 99, 71);
+	text-align: left;
+	color: orange;
+}
+
+.mycenter {
+	text-align: left;
+	color:lightblue;
+	border:2px solid gray;
+	border-radius: 10px;
+	margin-right: 250px;
+}
+
+p.mycenter {
+	color:green;
+}
+
+#mydiv {
+	height: 200px;
+	width: 50%;
+	background-color: lightgray;
+}
+
+#mybox {
+	width: 320;
+	height: 100px;
+	overflow: scroll;
+	padding: 10px;
+	margin-top: 30px;
+	border: 5px solid gray;
+	outline-color:red;
+	outline-style:dotted;
+}
+
+#mypara {
+	border: 1px solid black;
+	padding: 10px;
+	width: 400px;
+	height: 100px;
+	margin-top: 30px;
+	text-align: justify;
+	text-indent: 50px;
+}
+
+#mylink {
+	background-image: url("/images/img_forest.jpg");
+}
+
+#mynavigation {
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+}
+#mynavigation a {
+  display: block;
+  width: 60px;
+	
+}
+
+a:link, a:visited{
+	text-decoration: none;
+	background-color: #f44336;
+	color: white;
+	padding: 10px 20px;
+	text-align: center;
+	text-decoration: none;
+	display: inline-block;
+	border:2px solid gray;
+	border-radius: 10px;
+}
+
+a:hover, a:active{
+	text-decoration: underline;
+	background-color: red;
+	cursor: pointer;
+}
+
+a.one:link {
+	color: black;
+}
+
+ul.myul {
+	list-style-type: circle;
+}
+
+#customer {
+	font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+	border-collapse: collapse;
+	width: 100%;
+}
+
+#customer td {
+	border: 1px solid #ddd;
+	padding: 8px;
+}
+
+#customer th {
+	border: 1px solid #ddd;
+	padding: 8px;
+}
+
+#customer tr:nth-child(even)
+{
+	background-color: lightgray;
+}
+
+#customer tr:nth-child(odd)
+{
+	background-color: white;
+}
+
+#customer tr:hover {
+	background-color: #ddd;
+}
+
+#customer th{
+	padding-top: 12px;
+	padding-bottom: 12px;
+	text-align: left;
+	background-color: #4CAF50;
+	color: white;
+}
+
+li.getLink {
+	
+	display: inline;
+}
+
+#ImgForest {
+	opacity: 0.5;
+}
+#ImgForest:hover {
+	opacity: 1.0;
+}
+
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #f9f9f9;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  padding: 12px 16px;
+  z-index: 1;
+}
+
+.dropdown:hover .dropdown-content {
+  display: block;
+}
