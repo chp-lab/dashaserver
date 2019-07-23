@@ -92,7 +92,8 @@ const jwtAuth = new JwtStrategy(jwtOptions, (payload, done) => {
 		
 		if(err)
 		{
-			throw err;
+			mysql_handleDisconnect();
+			done(null, false);
 		}
 		console.log(result);
 		
@@ -155,7 +156,13 @@ const loginMiddleware = (req, res, next) => {
 		
 		if(err)
 		{
-			throw err;
+			mysql_handleDisconnect();
+			res.json({
+				type: false,
+				message: 'server_err',
+				token: ""
+			});
+			// throw err;
 		}
 		
 		console.log(result);
@@ -307,7 +314,12 @@ app.get('/monit', requireJWTAuth, function (req, res) {
 	con.query(sql, function(err, result, fields){
 		if(err)
 		{
-			throw err;
+			mysql_handleDisconnect();
+			res.json({
+				type: false,
+				message: 'server_error',
+				token: ""
+			});
 		}
 		
 		try{
@@ -347,29 +359,30 @@ mysql_handleDisconnect();
 
 con.on('error', function(err) {
     console.log('db error', err);
-    if(err.code === 'PROTOCOL_CONNECTION_LOST') 
-	{ 	
-		// Connection to the MySQL server is usually
-		mysql_handleDisconnect();                   	
-		// lost due to either server restart, or a
-    }
-	else
-	{	                                    
-		// connnection idle timeout (the wait_timeout
-		throw err;                            
-		mysql_handleDisconnect();
-		// server variable configures this)
-    }
+	// throw err;                            
+	mysql_handleDisconnect();
+	// server variable configures this
  });
  
  function mysql_handleDisconnect() {
+
 	con.connect(function(err) {
-	if(err)
-	{
-		throw err;
-	}
-	console.log("Mysql Connected");
+		if(err)
+		{
+			console.log("reconnecting to mysql server...");
+			setTimeout(mysql_handleDisconnect(), 3000);
+		}
+		
+		/*
+		if(err)
+		{
+			throw err;
+			
+		}
+		*/
 	});
+	
+	console.log("Mysql Connected");
  }
 
 /**
