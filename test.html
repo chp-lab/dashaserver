@@ -1,0 +1,122 @@
+  <html>
+  <head>
+	<link rel="icon" type="image/png" href="https://raw.githubusercontent.com/chatpeth/symp/master/public/images/pie-chart.png">
+	<link rel="stylesheet" type="text/css" href="/css/office.css">
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+	<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+	<script src="/js/jwt-vanilla.js"></script>
+    <script type="text/javascript">
+      google.charts.load('current', {'packages':['corechart']});
+      // google.charts.setOnLoadCallback(drawChart);
+	  google.charts.setOnLoadCallback(getData);
+	  
+	  
+	  function getData() {
+
+		  var url = "/all";
+		  var xhr = new XMLHttpRequest();
+		  var mytoken = localStorage.getItem('token');
+		  var jsonResponse;
+		 
+		  xhr.open('GET', url, true);
+		  
+		  xhr.setRequestHeader("Authorization", mytoken);
+		  
+		  xhr.addEventListener('load', function() {
+			var responseObject = this.response;
+			// console.log(responseObject);
+			
+			if(responseObject == 'Unauthorized')
+			{
+				alert("Unauthorized!");
+				window.location.assign("/login");
+				
+			}
+			else
+			{
+				jsonResponse = JSON.parse(this.response);
+				console.log(jsonResponse);
+				/*
+				// Create a new DataTable (Charts expects data in this format)
+				var mydata = new google.visualization.DataTable();
+				// Add two columns to the DataTable
+				mydata.addColumn('datetime', 'time');
+				mydata.addColumn('number',   'temp');
+				
+				jsonResponse.forEach(function(element){
+				// console.log(element);
+					mydata.addRow([
+						(new Date(element.time)), element.temp,
+					]);
+				});
+				
+				// console.log(mydata);
+				
+				var options = {
+					title: 'Environment',
+					curveType: 'function',
+					legend: { position: 'bottom' }
+				};
+				var chart = new google.visualization.LineChart(document.getElementById('curve_chart'));
+				chart.draw(mydata, options);
+				*/
+			}		
+	});
+
+
+  xhr.send(null);
+}
+
+
+
+    function drawChart() {
+		
+	// get json data without auth
+		var jsonData = $.ajax({
+			url: "/all",
+			dataType:"json",
+			async: false
+		}).done(function (results) {
+		
+		console.log(results);
+		
+		
+		/*
+		// 5. Create a new DataTable (Charts expects data in this format)
+		var mydata = new google.visualization.DataTable();
+
+		// 6. Add two columns to the DataTable
+		mydata.addColumn('datetime', 'time');
+		mydata.addColumn('number',   'temp');
+		
+		results.forEach(function(element){
+			// console.log(element);
+			mydata.addRow([
+				(new Date(element.time)), element.temp,
+			]);
+		});
+		
+		// console.log(mydata);
+		
+		var options = {
+          title: 'Environment',
+          curveType: 'function',
+          legend: { position: 'bottom' }
+        };
+
+        var chart = new google.visualization.LineChart(document.getElementById('curve_chart'));
+
+        chart.draw(mydata, options);
+		*/
+	});
+}
+    </script>
+  </head>
+  <body>
+	<h2>User</h2>
+    <div id="curve_chart" style="width: 900px; height: 500px"></div>
+	<button id="logoutBtn" onclick="logout()">logout</button>
+		
+	<script src="/js/jwt-vanilla.js"></script>
+  </body>
+</html>

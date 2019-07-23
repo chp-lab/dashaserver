@@ -1,6 +1,14 @@
+#sudo
 npm install mysql --save
 npm install express --save
 npm install jwt-simple --save
 npm install body-parser --save
 npm install passport --save
 npm install passport-jwt --save
+npm install --save influx
+
+
+npm install bcrypt --unsafe-perm
+
+npm install -g nodemon
+

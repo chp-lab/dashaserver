@@ -21,6 +21,58 @@ const jwtOptions = {
 
 const bcrypt = require('bcrypt');
 
+// influxdb-web server-client comunication
+const Influx = require('influx');
+const http = require('http');
+const os = require('os');
+// Decode jwt
+var jwtDecode = require('jwt-decode');
+
+const influx = new Influx.InfluxDB({
+  host: '54.254.186.136:8086',
+  username: 'chp-lab',
+  password:'atop3352',
+  database: 'envdb',
+  
+  schema: [
+    {
+      measurement: 'env',
+      fields: {
+        temp: Influx.FieldType.FLOAT 
+      },
+      tags: [
+        'topic'
+      ]
+    }
+  ]
+});
+
+app.use((req, res, next) => {
+  const start = Date.now()
+
+  res.on('finish', () => {
+    const duration = Date.now() - start
+    console.log(`Request to ${req.path} took ${duration}ms`)
+
+	/*
+    influx.writePoints([
+      {
+		  
+		  
+        measurement: 'response_times',
+        tags: { host: os.hostname() },
+        fields: { duration, path: req.path }
+		
+      }
+    ]).catch(err => {
+      console.error(`Error saving data to InfluxDB! ${err.stack}`)
+    });
+	*/
+  });
+  return next()
+});
+
+
 const jwtAuth = new JwtStrategy(jwtOptions, (payload, done) => {
 	console.log("sub: " + payload.sub);
 	
@@ -32,6 +84,7 @@ const jwtAuth = new JwtStrategy(jwtOptions, (payload, done) => {
 	
 	var username = "\'" + payload.sub + "\'";
 	var sql = "SELECT username FROM UserInformations WHERE username= " + username;
+	var tag = 'jwtAuth: ';
 	
 	console.log(sql);
 	con.query(sql, function(err, result, fields){
@@ -50,11 +103,11 @@ const jwtAuth = new JwtStrategy(jwtOptions, (payload, done) => {
 			}
 			catch(e)
 			{
-				console.log("unknow error ocurred!");
+				console.log(tag + "unknow error ocurred!");
 			}
 			if(payload.sub === resultArray[0].username)
 			{
-				console.log("Authentication success!");
+				console.log(tag + "Authentication success!");
 				done(null, true);
 			}
 			else
@@ -230,6 +283,57 @@ app.get('/user', function(req, res){
   res.sendFile(__dirname + "/user/" + "user.html");
 });
 
+app.get('/test', function(req, res){
+  
+  res.sendFile(__dirname + "/test.html");
+});
+
+// Data req, don't forget to add auth
+app.get('/monit', requireJWTAuth, function (req, res) {
+	var d = new Date();
+	var tmp_timeStamp = d.getFullYear().toString() + "-" + ( "0" + (d.getMonth() + 1).toString()).slice(-2) +  "-" + ( "0" + d.getDate().toString()).slice(-2) + 'T00:00:00Z';
+	// console.log(tmp_timeStamp);
+	// console.log(req.headers.authorization);
+	var decoded = jwtDecode(req.headers.authorization);
+	var tmpUsername = `'${decoded.sub}'`;
+	var tag = 'monit: ';
+	// Get table name of user A
+	var sql = "SELECT * FROM Machines WHERE username= " + tmpUsername;
+	var jsonMysqlRes;
+	
+	console.log(tag + sql);
+	
+	// mysql part
+	con.query(sql, function(err, result, fields){
+		if(err)
+		{
+			throw err;
+		}
+		
+		try{
+			jsonMysqlRes = JSON.parse(JSON.stringify(result));
+			console.log(jsonMysqlRes);
+			// resultArray = Object.values(JSON.parse(JSON.stringify(result)));
+			
+			var query_obj = {tableName: `"${jsonMysqlRes[0].machineID}"`, timpStamp:tmp_timeStamp, limit: 0};
+			var query_cmd = `SELECT *::field FROM ${query_obj.tableName} WHERE time > '${query_obj.timpStamp}' limit ${query_obj.limit}`;
+			console.log(query_cmd);
+
+			influx.query(query_cmd).then(result => {
+				var resultObj = {username:jsonMysqlRes[0].username, machineName:jsonMysqlRes[0].machineName, department:jsonMysqlRes[0].department, results:result};
+				res.json(resultObj)
+			}).catch(err => {
+				res.status(500).send(err.stack)
+			})
+		}
+		catch(e)
+		{
+			console.log("unknow error ocurred!");
+			throw e;
+		}
+	});
+});
+
 app.use(function (req, res, next) {
   res.status(404).send("(404) Page not found!")
 });
@@ -239,25 +343,48 @@ app.use(function (err, req, res, next) {
   res.status(500).send('(500) Server error!!')
 });
 
-con.connect(function(err) {
+mysql_handleDisconnect();
+
+con.on('error', function(err) {
+    console.log('db error', err);
+    if(err.code === 'PROTOCOL_CONNECTION_LOST') 
+	{ 	
+		// Connection to the MySQL server is usually
+		mysql_handleDisconnect();                   	
+		// lost due to either server restart, or a
+    }
+	else
+	{	                                    
+		// connnection idle timeout (the wait_timeout
+		throw err;                            
+		mysql_handleDisconnect();
+		// server variable configures this)
+    }
+ });
+ 
+ function mysql_handleDisconnect() {
+	con.connect(function(err) {
 	if(err)
 	{
 		throw err;
 	}
-	console.log("Connected");
-	/*
-	var username = "\'admin\'";
-	var sql = "SELECT password FROM UserInformations WHERE username= " + username;
-	console.log(sql);
-	con.query(sql, function(err, result, fields){
-		if(err)
-		{
-			throw err;
-		}
-		console.log(result);
-	
+	console.log("Mysql Connected");
 	});
-	*/
-});
+ }
 
-app.listen(PORT, () => console.log(`Listening on ${ PORT }`));
+/**
+ * Now, we'll make sure the database exists and boot the app.
+ */
+influx.getDatabaseNames()
+  .then(names => {
+    if (!names.includes('envdb')) {
+		console.log("database not found");
+      //return influx.createDatabase('envdb')
+	  return false;
+    }
+  }).then(() => {
+    app.listen(PORT, () => console.log(`Listening on ${ PORT }`));
+  }).catch(err => {
+    console.error('failed connect to database')
+  });
+
