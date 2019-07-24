@@ -47,30 +47,17 @@ const influx = new Influx.InfluxDB({
   ]
 });
 
+/*
 app.use((req, res, next) => {
   const start = Date.now()
 
   res.on('finish', () => {
     const duration = Date.now() - start
-    console.log(`Request to ${req.path} took ${duration}ms`)
-
-	/*
-    influx.writePoints([
-      {
-		  
-		  
-        measurement: 'response_times',
-        tags: { host: os.hostname() },
-        fields: { duration, path: req.path }
-		
-      }
-    ]).catch(err => {
-      console.error(`Error saving data to InfluxDB! ${err.stack}`)
-    });
-	*/
+    console.log(`Request to ${req.path} took ${duration}ms`);
   });
   return next()
 });
+*/
 
 
 const jwtAuth = new JwtStrategy(jwtOptions, (payload, done) => {
@@ -87,6 +74,9 @@ const jwtAuth = new JwtStrategy(jwtOptions, (payload, done) => {
 	var tag = 'jwtAuth: ';
 	
 	console.log(sql);
+	
+	mysql_handleDisconnect();
+	
 	con.query(sql, function(err, result, fields){
 		var resultArray;
 		
@@ -149,6 +139,8 @@ const loginMiddleware = (req, res, next) => {
 	var sql = "SELECT password FROM UserInformations WHERE username= " + tmpUser;
 	
 	console.log(sql);
+	
+	mysql_handleDisconnect();
 	
 	con.query(sql, function(err, result, fields){
 		var checkPassword;
@@ -297,9 +289,7 @@ app.get('/test', function(req, res){
 
 // Data req, don't forget to add auth
 app.get('/monit', requireJWTAuth, function (req, res) {
-	var d = new Date();
-	var tmp_timeStamp = d.getFullYear().toString() + "-" + ( "0" + (d.getMonth() + 1).toString()).slice(-2) +  "-" + ( "0" + d.getDate().toString()).slice(-2) + 'T00:00:00Z';
-	// console.log(tmp_timeStamp);
+	
 	// console.log(req.headers.authorization);
 	var decoded = jwtDecode(req.headers.authorization);
 	var tmpUsername = `'${decoded.sub}'`;
@@ -309,6 +299,8 @@ app.get('/monit', requireJWTAuth, function (req, res) {
 	var jsonMysqlRes;
 	
 	console.log(tag + sql);
+	
+	mysql_handleDisconnect();
 	
 	// mysql part
 	con.query(sql, function(err, result, fields){
@@ -322,26 +314,43 @@ app.get('/monit', requireJWTAuth, function (req, res) {
 			});
 		}
 		
-		try{
-			jsonMysqlRes = JSON.parse(JSON.stringify(result));
-			console.log(jsonMysqlRes);
-			// resultArray = Object.values(JSON.parse(JSON.stringify(result)));
+		
+		jsonMysqlRes = JSON.parse(JSON.stringify(result));
+		
+		myInflux();
 			
-			var query_obj = {tableName: `"${jsonMysqlRes[0].machineID}"`, timpStamp:tmp_timeStamp, limit: 0};
-			var query_cmd = `SELECT *::field FROM ${query_obj.tableName} WHERE time > '${query_obj.timpStamp}' limit ${query_obj.limit}`;
-			console.log(query_cmd);
-
-			influx.query(query_cmd).then(result => {
-				var resultObj = {username:jsonMysqlRes[0].username, machineName:jsonMysqlRes[0].machineName, department:jsonMysqlRes[0].department, results:result};
-				res.json(resultObj)
-			}).catch(err => {
-				res.status(500).send(err.stack)
-			})
-		}
-		catch(e)
+		function myInflux()
 		{
-			console.log("unknow error ocurred!");
-			throw e;
+			var i = 0;
+			var __all_results = {};
+			var d = new Date();
+			var tmp_timeStamp = d.getFullYear().toString() + "-" + ( "0" + (d.getMonth() + 1).toString()).slice(-2) +  "-" + ( "0" + d.getDate().toString()).slice(-2) + 'T00:00:00Z';
+			
+			jsonMysqlRes.forEach(function(element){
+				// console.log(element);
+					
+				var query_obj = {tableName: `"${element.machineID}"`, timeStamp:tmp_timeStamp, limit: 10};
+				var query_cmd = `SELECT *::field FROM ${query_obj.tableName} WHERE time > '${query_obj.timeStamp}' limit ${query_obj.limit}`;
+				var __tmp_result;
+				
+				console.log(query_cmd);
+					
+				// Non blocking function
+				influx.query(query_cmd).then(result => {
+					__tmp_result = JSON.parse(JSON.stringify(result));
+					__all_results[element.machineID] = __tmp_result;
+					i = i + 1;
+					console.log("Query complete " + i + " time(s)");
+					if(i >= jsonMysqlRes.length)
+					{
+						var resultObj = {username:jsonMysqlRes[0].username, machineName:jsonMysqlRes[0].machineName, department:jsonMysqlRes[0].department, results:__all_results};
+						res.json(resultObj);
+					}
+				}).catch(err => {
+					res.status(500).send(err.stack)
+				})
+				
+			});			
 		}
 	});
 });
@@ -367,22 +376,22 @@ con.on('error', function(err) {
  function mysql_handleDisconnect() {
 
 	con.connect(function(err) {
-		if(err)
+		if(err != null)
 		{
-			console.log("reconnecting to mysql server...");
-			setTimeout(mysql_handleDisconnect(), 3000);
+			if(err.code == 'PROTOCOL_ENQUEUE_HANDSHAKE_TWICE')
+			{
+				console.log("mysql server already connect");
+			}
+			else
+			{
+				console.log(err.code);
+			}
 		}
-		
-		/*
-		if(err)
+		else
 		{
-			throw err;
-			
+			console.log("connected to mysql server");
 		}
-		*/
 	});
-	
-	console.log("Mysql Connected");
  }
 
 /**

@@ -37,19 +37,25 @@
 				// console.log(this.response);
 				jsonResponse = JSON.parse(this.response);
 				console.log(jsonResponse);
+				
+				/*
 				// Create a new DataTable (Charts expects data in this format)
 				
 				document.getElementById("usernameheader").innerHTML = jsonResponse.username;
 				
 				var mydata = new google.visualization.DataTable();
+				var __paramName = Object.keys(jsonResponse.results[0])[2];
+				
 				// Add two columns to the DataTable
+				console.log(Object.keys(jsonResponse.results[0])[2]);
 				mydata.addColumn('datetime', 'time');
-				mydata.addColumn('number',   'temp');
+				mydata.addColumn('number',   __paramName);
 				
 				jsonResponse.results.forEach(function(element){
-				// console.log(element);
+					// console.log(Object.keys(element)[0]);
+					// console.log(element[0]);
 					mydata.addRow([
-						(new Date(element.time)), element.temp,
+						(new Date(element[Object.keys(element)[0]])), element[__paramName],
 					]);
 				});
 				
@@ -63,6 +69,8 @@
 				};
 				var chart = new google.visualization.ScatterChart(document.getElementById('curve_chart'));
 				chart.draw(mydata, options);
+				
+				*/
 				
 			}		
 	});
