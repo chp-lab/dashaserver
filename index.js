@@ -369,7 +369,7 @@ app.get('/monit', requireJWTAuth, function (req, res) {
 						
 					// Non blocking function
 					influx.query(query_cmd).then(result => {
-						__all_results[element.machineID] = JSON.parse(JSON.stringify(result));
+						__all_results[`${element.machineName}-${element.machineID}`] = JSON.parse(JSON.stringify(result));
 						i = i + 1;
 						console.log("Query complete " + i + " time(s)");
 						if(i >= jsonMysqlRes.length)
@@ -434,7 +434,8 @@ con.on('error', function(err) {
 	*/
 	// test connection
 	mysql_pool.getConnection(function(err, connection) {
-		if (err) {
+		if (err) 
+		{
 			connection.release();
 			console.log(' Error getting mysql_pool connection: ' + err);
 			throw err;
@@ -442,8 +443,9 @@ con.on('error', function(err) {
 		else
 		{
 			console.log("mysql connected");
+			connection.release();
 		}
-		connection.release();
+		
 	});
 	
  }

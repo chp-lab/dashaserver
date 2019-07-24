@@ -10,9 +10,7 @@
       // google.charts.setOnLoadCallback(drawChart);
 	  google.charts.setOnLoadCallback(getData);
 	  
-	  
 	  function getData() {
-
 		  var url = "/monit";
 		  var xhr = new XMLHttpRequest();
 		  var mytoken = localStorage.getItem('token');
@@ -41,73 +39,75 @@
 				// Create a new DataTable (Charts expects data in this format)
 				document.getElementById("usernameheader").innerHTML = jsonResponse.username;
 				
-				var mydata = new google.visualization.DataTable();
-				var __tableName = Object.keys(jsonResponse.results)[0];
-				console.log("tableName= " + __tableName);
-				// index 0 is time
-				var __paramName = Object.keys(jsonResponse.results[__tableName][0]);
-				// console.log(__paramName);
-				__paramName.forEach(function(element){
-					var dataType;
-					console.log(element);
-					if(element == 'time')
-					{
-						console.log("Adding timestamp");
-						dataType = 'datetime';
-					}
-					else
-					{
-						dataType = 'number';
-					}
-					mydata.addColumn(dataType, element);
-				});
+				var __allTable = Object.keys(jsonResponse.results);
 				
-				
-				// Loop to add each result from <tableName> to DataTable object
-				jsonResponse.results[__tableName].forEach(function(element){
-					// console.log(element);
-					var tmpDataAdd = [];
+				__allTable.forEach(function(measurement){
 					
-					/*
-					__paramName.forEach(function(childElement){
-						console.log(element.indexOf(childElement));
-						if(childElement == 'time')
+					var mydata = new google.visualization.DataTable();
+					var __tableName = measurement;
+					
+					console.log("tableName= " + __tableName);
+					// index 0 is time
+					var __paramName = Object.keys(jsonResponse.results[__tableName][0]);
+					
+					
+					var chartDiv = document.createElement('div');
+					chartDiv.id = __tableName;
+					chartDiv.class = "chartArea";
+					chartDiv.style.width = '900px';
+					chartDiv.style.height = '500px';
+					document.body.appendChild(chartDiv);
+					
+					// console.log(__paramName);
+					__paramName.forEach(function(element){
+						
+						var dataType;
+						console.log(element);
+						if(element == 'time')
 						{
-							console.log("create datetime format");
-							tmpDataAdd[childElement] =  new Date(element[childElement]);
+							console.log("Adding timestamp");
+							dataType = 'datetime';
 						}
 						else
 						{
-							tmpDataAdd[childElement] =  element[childElement];
+							dataType = 'number';
 						}
+						mydata.addColumn(dataType, element);
 					});
-					*/
-					var i;
-					for(i = 0; i < __paramName.length; i++)
-					{
-						if(__paramName[i] == 'time')
-						{
-							tmpDataAdd[i] = new Date(element[__paramName[i]]);
-						}
-						else
-						{
-							tmpDataAdd[i] = element[__paramName[i]];
-						}
-					}
 					
-					mydata.addRow(tmpDataAdd);
+						// Loop to add each result from <tableName> to DataTable object
+					jsonResponse.results[__tableName].forEach(function(element){
+						// console.log(element);
+						var tmpDataAdd = [];
+						var i;
+						for(i = 0; i < __paramName.length; i++)
+						{
+							if(__paramName[i] == 'time')
+							{
+								tmpDataAdd[i] = new Date(element[__paramName[i]]);
+							}
+							else
+							{
+								tmpDataAdd[i] = element[__paramName[i]];
+							}
+						}
+						
+						mydata.addRow(tmpDataAdd);
+						
+					});
 					
-				});
+					var options = {
+						title: `${jsonResponse.department}: ${__tableName}`,
+						curveType: 'function',
+						legend: { position: 'bottom' },
+						pointSize: 3,
+						backgroundColor: '#F0F0F3',
+						
+					};
+					var chart = new google.visualization.ScatterChart(document.getElementById(__tableName));
+					chart.draw(mydata, options);
 				
-				var options = {
-					title: jsonResponse.department + ": " + jsonResponse.machineName,
-					curveType: 'function',
-					legend: { position: 'bottom' },
-					pointSize: 3,
-				};
-				var chart = new google.visualization.ScatterChart(document.getElementById('chart1'));
-				chart.draw(mydata, options);
-				
+				});				
 			}		
 	});
 
@@ -117,10 +117,10 @@
     </script>
   </head>
   <body>
-	<h2 id="usernameheader"></h2>
-    <div id="chart1" style="width: 900px; height: 500px"></div>
+	<h2 id="usernameheader">user</h2>
+    <div id="maindiv" style="height: 100px">
 	<button id="logoutBtn" onclick="logout()">logout</button>
-		
+	</div>
 	<script src="/js/jwt-vanilla.js"></script>
   </body>
 </html>
