@@ -47,7 +47,7 @@ const influx = new Influx.InfluxDB({
   ]
 });
 
-/*
+
 app.use((req, res, next) => {
   const start = Date.now()
 
@@ -57,7 +57,7 @@ app.use((req, res, next) => {
   });
   return next()
 });
-*/
+
 
 
 const jwtAuth = new JwtStrategy(jwtOptions, (payload, done) => {
@@ -75,43 +75,52 @@ const jwtAuth = new JwtStrategy(jwtOptions, (payload, done) => {
 	
 	console.log(sql);
 	
-	mysql_handleDisconnect();
-	
-	con.query(sql, function(err, result, fields){
-		var resultArray;
-		
-		if(err)
-		{
-			mysql_handleDisconnect();
-			done(null, false);
+	mysql_pool.getConnection(function(err, connection) {
+		if (err) {
+			connection.release();
+			console.log(' Error getting mysql_pool connection: ' + err);
+			throw err;
 		}
-		console.log(result);
-		
-		if((result && result.length > 0))
-		{
-			try{
-				resultArray = Object.values(JSON.parse(JSON.stringify(result)));
-			}
-			catch(e)
+	
+	
+		connection.query(sql, function(err2, result, fields){
+			var resultArray;
+			if(err2)
 			{
-				console.log(tag + "unknow error ocurred!");
+				console.log(' mysql_pool.release()');
+				connection.release();
+				
+				done(null, false);
 			}
-			if(payload.sub === resultArray[0].username)
+			console.log(result);
+			
+			if((result && result.length > 0))
 			{
-				console.log(tag + "Authentication success!");
-				done(null, true);
+				try{
+					resultArray = Object.values(JSON.parse(JSON.stringify(result)));
+				}
+				catch(e)
+				{
+					console.log(tag + "unknow error ocurred!");
+				}
+				if(payload.sub === resultArray[0].username)
+				{
+					console.log(tag + "Authentication success!");
+					done(null, true);
+				}
+				else
+			   {
+				   
+				   done(null, false);
+			   }
 			}
 			else
-		   {
-			   
-			   done(null, false);
-		   }
-		}
-		else
-		{
-			done(null, false);
-		}
-	
+			{
+				done(null, false);
+			}
+		
+		});
+		connection.release();
 	});
 });
 // passport middle ware auth
@@ -140,84 +149,99 @@ const loginMiddleware = (req, res, next) => {
 	
 	console.log(sql);
 	
-	mysql_handleDisconnect();
+	mysql_pool.getConnection(function(err, connection) {
+		if (err) {
+			connection.release();
+			console.log(' Error getting mysql_pool connection: ' + err);
+			throw err;
+		}
 	
-	con.query(sql, function(err, result, fields){
-		var checkPassword;
-		var resultArray;
-		
-		if(err)
-		{
-			mysql_handleDisconnect();
-			res.json({
-				type: false,
-				message: 'server_err',
-				token: ""
-			});
-			// throw err;
-		}
-		
-		console.log(result);
-		
-		
-		if((result && result.length > 0))
-		{	
-			try{
-				resultArray = Object.values(JSON.parse(JSON.stringify(result)));
-				checkPassword = resultArray[0].password;
-				console.log("checkPassword= " + checkPassword);
-			}
-			catch(e)
+		connection.query(sql, function(err2, result, fields){
+			var checkPassword;
+			var resultArray;
+			
+			if(err2)
 			{
-				console.log("unknow error ocurred!");
+				console.log(' mysql_pool.release()');
+				connection.release();
+				
+				res.json({
+					type: false,
+					message: 'server_err',
+					token: ""
+				});
+				// throw err;
 			}
 			
-			// bcrypt 4 round
-			// https://www.devglan.com/online-tools/bcrypt-hash-generator
-			// Sample hash source code
-			/*
-			bcrypt.hash('myPassword', 10, function(err, hash) {
-				// Store hash in database
-			});
-			*/
+			console.log(result);
 			
-			bcrypt.compare(req.body.password, checkPassword, function(err, pass) {
-				if(pass) 
+			
+			if((result && result.length > 0))
+			{	
+				try{
+					resultArray = Object.values(JSON.parse(JSON.stringify(result)));
+					checkPassword = resultArray[0].password;
+					console.log("checkPassword= " + checkPassword);
+				}
+				catch(e)
 				{
-					// Passwords match
-					console.log("login pass");
-					next();
-				} 
-				else {
-					// Passwords don't match
-					res.json({
-						type: false,
-						message: 'login_failed',
-						token: ""
-					});
-					console.log("login failed");
-				} 
-			});
-		}
-		else
-		{
-			console.log("user not found!");
-			res.json({
-				type: false,
-				message: 'user_not_found',
-				token: ""
-			});
-		}	
+					console.log("unknow error ocurred!");
+				}
+				
+				// bcrypt 4 round
+				// https://www.devglan.com/online-tools/bcrypt-hash-generator
+				// Sample hash source code
+				/*
+				bcrypt.hash('myPassword', 10, function(err, hash) {
+					// Store hash in database
+				});
+				*/
+				
+				bcrypt.compare(req.body.password, checkPassword, function(err, pass) {
+					if(pass) 
+					{
+						// Passwords match
+						console.log("login pass");
+						next();
+					} 
+					else {
+						// Passwords don't match
+						res.json({
+							type: false,
+							message: 'login_failed',
+							token: ""
+						});
+						console.log("login failed");
+					} 
+				});
+			}
+			else
+			{
+				console.log("user not found!");
+				res.json({
+					type: false,
+					message: 'user_not_found',
+					token: ""
+				});
+			}	
+		});
+		connection.release();
 	});
 }
 
 // mysql server informations
-var con = mysql.createConnection({
+
+var db_config = {
+	connectionLimit : 100,
 	host: "54.254.186.136",
 	user: "admin",
 	password: "0x00ff0000",
 	database: "chplab"
-});
+};
+
+// var con = mysql.createConnection(db_config);
+
+var mysql_pool  = mysql.createPool(db_config);
 
 // handle login form
 // basic flow -> index.html->login.html->homepage.html
@@ -300,58 +324,67 @@ app.get('/monit', requireJWTAuth, function (req, res) {
 	
 	console.log(tag + sql);
 	
-	mysql_handleDisconnect();
-	
 	// mysql part
-	con.query(sql, function(err, result, fields){
-		if(err)
-		{
-			mysql_handleDisconnect();
-			res.json({
-				type: false,
-				message: 'server_error',
-				token: ""
-			});
+	mysql_pool.getConnection(function(err, connection) {
+		if (err) {
+			connection.release();
+			console.log(' Error getting mysql_pool connection: ' + err);
+			throw err;
 		}
 		
-		
-		jsonMysqlRes = JSON.parse(JSON.stringify(result));
-		
-		myInflux();
-			
-		function myInflux()
-		{
-			var i = 0;
-			var __all_results = {};
-			var d = new Date();
-			var tmp_timeStamp = d.getFullYear().toString() + "-" + ( "0" + (d.getMonth() + 1).toString()).slice(-2) +  "-" + ( "0" + d.getDate().toString()).slice(-2) + 'T00:00:00Z';
-			
-			jsonMysqlRes.forEach(function(element){
-				// console.log(element);
-					
-				var query_obj = {tableName: `"${element.machineID}"`, timeStamp:tmp_timeStamp, limit: 10};
-				var query_cmd = `SELECT *::field FROM ${query_obj.tableName} WHERE time > '${query_obj.timeStamp}' limit ${query_obj.limit}`;
-				var __tmp_result;
+		connection.query(sql, function(err2, result, fields){
+			if(err2)
+			{
+				console.log(' mysql_pool.release()');
+				connection.release();
 				
-				console.log(query_cmd);
-					
-				// Non blocking function
-				influx.query(query_cmd).then(result => {
-					__tmp_result = JSON.parse(JSON.stringify(result));
-					__all_results[element.machineID] = __tmp_result;
-					i = i + 1;
-					console.log("Query complete " + i + " time(s)");
-					if(i >= jsonMysqlRes.length)
-					{
-						var resultObj = {username:jsonMysqlRes[0].username, machineName:jsonMysqlRes[0].machineName, department:jsonMysqlRes[0].department, results:__all_results};
-						res.json(resultObj);
-					}
-				}).catch(err => {
-					res.status(500).send(err.stack)
-				})
+				res.json({
+					type: false,
+					message: 'server_error',
+					token: ""
+				});
+			}
+		
+			// Keep user information from mysql
+			jsonMysqlRes = JSON.parse(JSON.stringify(result));
+			
+			myInflux();
 				
-			});			
-		}
+			function myInflux()
+			{
+				var i = 0;
+				var __all_results = {};
+				var d = new Date();
+				var tmp_timeStamp = d.getFullYear().toString() + "-" + ( "0" + (d.getMonth() + 1).toString()).slice(-2) +  "-" + ( "0" + d.getDate().toString()).slice(-2) + 'T00:00:00Z';
+				
+				jsonMysqlRes.forEach(function(element){
+					// console.log(element);
+						
+					var query_obj = {tableName: `"${element.machineID}"`, timeStamp:tmp_timeStamp, limit: 0};
+					// Get today data
+					var query_cmd = `SELECT *::field FROM ${query_obj.tableName} WHERE time > '${query_obj.timeStamp}' limit ${query_obj.limit}`;
+					
+					
+					console.log(query_cmd);
+						
+					// Non blocking function
+					influx.query(query_cmd).then(result => {
+						__all_results[element.machineID] = JSON.parse(JSON.stringify(result));
+						i = i + 1;
+						console.log("Query complete " + i + " time(s)");
+						if(i >= jsonMysqlRes.length)
+						{
+							var resultObj = {username:jsonMysqlRes[0].username, machineName:jsonMysqlRes[0].machineName, department:jsonMysqlRes[0].department, results:__all_results};
+							res.json(resultObj);
+						}
+					}).catch(err => {
+						res.status(500).send(err.stack)
+					})
+					
+				});			
+			}
+		});
+		connection.release();
 	});
 });
 
@@ -364,17 +397,22 @@ app.use(function (err, req, res, next) {
   res.status(500).send('(500) Server error!!')
 });
 
-mysql_handleDisconnect();
-
+/*
 con.on('error', function(err) {
     console.log('db error', err);
 	// throw err;                            
 	mysql_handleDisconnect();
 	// server variable configures this
  });
+ */
  
+ mysql_handleDisconnect();
+ // handle mysql connection lost
  function mysql_handleDisconnect() {
 
+	/*
+	con.destroy();
+	con = mysql.createConnection(db_config);
 	con.connect(function(err) {
 		if(err != null)
 		{
@@ -385,6 +423,7 @@ con.on('error', function(err) {
 			else
 			{
 				console.log(err.code);
+				setTimeout(mysql_handleDisconnect, 1000);
 			}
 		}
 		else
@@ -392,6 +431,21 @@ con.on('error', function(err) {
 			console.log("connected to mysql server");
 		}
 	});
+	*/
+	// test connection
+	mysql_pool.getConnection(function(err, connection) {
+		if (err) {
+			connection.release();
+			console.log(' Error getting mysql_pool connection: ' + err);
+			throw err;
+		}
+		else
+		{
+			console.log("mysql connected");
+		}
+		connection.release();
+	});
+	
  }
 
 /**

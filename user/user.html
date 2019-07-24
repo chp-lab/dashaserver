@@ -36,30 +36,68 @@
 			{
 				// console.log(this.response);
 				jsonResponse = JSON.parse(this.response);
-				console.log(jsonResponse);
+				// console.log(jsonResponse);
 				
-				/*
 				// Create a new DataTable (Charts expects data in this format)
-				
 				document.getElementById("usernameheader").innerHTML = jsonResponse.username;
 				
 				var mydata = new google.visualization.DataTable();
-				var __paramName = Object.keys(jsonResponse.results[0])[2];
-				
-				// Add two columns to the DataTable
-				console.log(Object.keys(jsonResponse.results[0])[2]);
-				mydata.addColumn('datetime', 'time');
-				mydata.addColumn('number',   __paramName);
-				
-				jsonResponse.results.forEach(function(element){
-					// console.log(Object.keys(element)[0]);
-					// console.log(element[0]);
-					mydata.addRow([
-						(new Date(element[Object.keys(element)[0]])), element[__paramName],
-					]);
+				var __tableName = Object.keys(jsonResponse.results)[0];
+				console.log("tableName= " + __tableName);
+				// index 0 is time
+				var __paramName = Object.keys(jsonResponse.results[__tableName][0]);
+				// console.log(__paramName);
+				__paramName.forEach(function(element){
+					var dataType;
+					console.log(element);
+					if(element == 'time')
+					{
+						console.log("Adding timestamp");
+						dataType = 'datetime';
+					}
+					else
+					{
+						dataType = 'number';
+					}
+					mydata.addColumn(dataType, element);
 				});
 				
-				// console.log(mydata);
+				
+				// Loop to add each result from <tableName> to DataTable object
+				jsonResponse.results[__tableName].forEach(function(element){
+					// console.log(element);
+					var tmpDataAdd = [];
+					
+					/*
+					__paramName.forEach(function(childElement){
+						console.log(element.indexOf(childElement));
+						if(childElement == 'time')
+						{
+							console.log("create datetime format");
+							tmpDataAdd[childElement] =  new Date(element[childElement]);
+						}
+						else
+						{
+							tmpDataAdd[childElement] =  element[childElement];
+						}
+					});
+					*/
+					var i;
+					for(i = 0; i < __paramName.length; i++)
+					{
+						if(__paramName[i] == 'time')
+						{
+							tmpDataAdd[i] = new Date(element[__paramName[i]]);
+						}
+						else
+						{
+							tmpDataAdd[i] = element[__paramName[i]];
+						}
+					}
+					
+					mydata.addRow(tmpDataAdd);
+					
+				});
 				
 				var options = {
 					title: jsonResponse.department + ": " + jsonResponse.machineName,
@@ -67,10 +105,8 @@
 					legend: { position: 'bottom' },
 					pointSize: 3,
 				};
-				var chart = new google.visualization.ScatterChart(document.getElementById('curve_chart'));
+				var chart = new google.visualization.ScatterChart(document.getElementById('chart1'));
 				chart.draw(mydata, options);
-				
-				*/
 				
 			}		
 	});
@@ -82,7 +118,7 @@
   </head>
   <body>
 	<h2 id="usernameheader"></h2>
-    <div id="curve_chart" style="width: 900px; height: 500px"></div>
+    <div id="chart1" style="width: 900px; height: 500px"></div>
 	<button id="logoutBtn" onclick="logout()">logout</button>
 		
 	<script src="/js/jwt-vanilla.js"></script>
