@@ -1,23 +1,21 @@
+<!DOCTYPE html>
 <html>
 <head>
 <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/chatpeth/symp/master/public/images/pie-chart.png">
 <link rel="stylesheet" type="text/css" href="/css/office.css">
+<title>chp-lab</title>
 </head>
-
-	<body onload="getUserInform()">
-	<h2>Home</h2>
-	<div class="userInformation">
-    <h3 id="uname"></h3>
-	</div>
-		
-		<div id=rommList>
-		
-		<form action="/user" method="GET">
-			<input type="submit" value="Profile">
-		</form>
-		</div>
-		<button id="logoutBtn" onclick="logout()">logout</button>
-		
-		<script src="/js/jwt-vanilla.js"></script>
-	</body>
+<body onload="getUserInform()">
+    <h2>Home</h2>
+    <div class="userInformation">
+        <h3 id="uname"></h3>
+    </div>
+    <div id=rommList>
+        <form action="/user" method="GET">
+            <input type="submit" value="Profile">
+        </form>
+    </div>
+    <button id="logoutBtn" onclick="logout()">logout</button>		
+    <script src="/js/jwt-vanilla.js"></script>
+</body>
 </html>

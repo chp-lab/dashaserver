@@ -1,39 +1,32 @@
+<!DOCTYPE html>
 <html>
 <head>
 <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/chatpeth/symp/master/public/images/pie-chart.png">
 <link rel="stylesheet" type="text/css" href="/css/office.css">
-<title>Symposium-IoT</title>
+<title>chp-lab</title>
 </head>
-
-  <body>
-	<h2>Log in to Symposium-IoT</h2>
-	
-	<div class="ulogin">
-    <label for="username"><p>Username</p></label>
-    <input id="username" type="text">
-    <label for="password"><p>Password</p></label>
-    <input id="password" type="password"></br></br>
-    <button id="loginBtn" onclick="manageLogin()">login</button>
-	</div>
-	
-	<div id="result">
-	
-	</div>
-	
-	<script>
+<body>
+    <h2>Log in to chp-lab</h2>
+    <div class="ulogin">
+        <label for="username">Username</label>
+        <input id="username" type="text">
+        <label for="password">Password</label>
+        <input id="password" type="password">
+        <button id="loginBtn" onclick="manageLogin()">login</button>
+    </div>
+    <div id="result">
+    </div>
+    
+    <script>
 	// Manage login
 	// 1. Req token
 	// 2. GET User page
-	
 	function manageLogin()
-	{
-		var tag = "manageLogin: ";
-		
-		getToken();
-		
-	}
-	</script>
-	<script src="/js/jwt-vanilla.js"></script>
-	
-  </body>
+        {
+            var tag = "manageLogin: ";
+            getToken();	
+        }
+    </script>
+    <script src="/js/jwt-vanilla.js"></script>
+</body>
 </html>

@@ -1,9 +1,7 @@
-// make the request to the login endpoint
-
-
-
-function getToken() {
-  var loginUrl = "/index"
+// client library
+function getToken() 
+{
+  var loginUrl = "/index";
   var xhr = new XMLHttpRequest();
   var userElement = document.getElementById('username');
   var passwordElement = document.getElementById('password');
@@ -43,9 +41,9 @@ function getToken() {
   
 }
 
-function getSecret() {
-
-  var url = "/index"
+function getSecret() 
+{
+  var url = "/index";
   var xhr = new XMLHttpRequest();
   
   var mytoken = localStorage.getItem('token');
@@ -59,7 +57,7 @@ function getSecret() {
     //var responseObject = JSON.parse(this.response);
 	var responseObject = this.response;
 	// console.log(responseObject);
-	if(responseObject == 'Unauthorized')
+	if(responseObject === 'Unauthorized')
 	{
 		//alert("Unauthorized!");
 		window.location.assign("/login");
@@ -70,16 +68,14 @@ function getSecret() {
 		console.log(tag + "login pass");
 		window.location.assign("/home");
 	}
-    
-    
   });
 
   xhr.send(null);
 }
 
-function getUserInform() {
-
-  var url = "/index"
+function getUserInform()
+{
+  var url = "/index";
   var xhr = new XMLHttpRequest();
   var mytoken = localStorage.getItem('token');
   var tag = "getUserInform: ";
@@ -92,34 +88,27 @@ function getUserInform() {
   
   xhr.addEventListener('load', function() {
     var responseObject = this.response;
-	 console.log("db0x36");
+    console.log("db0x36");
 	
-	if(responseObject == 'Unauthorized')
-	{
-		alert("Unauthorized!");
-		window.location.assign("/login");
-		
-	}
-	else
-	{
-		jsonResponse = JSON.parse(this.response);
-		
-		
-		
-	}
-    
-    
+    if(responseObject === 'Unauthorized')
+    {
+	alert("Unauthorized!");
+	window.location.assign("/login");	
+    }
+    else
+    {
+	jsonResponse = JSON.parse(this.response);
+    }
   });
 
   xhr.send(null);
 }
 
-
 function logout()
 {
-	if(confirm('Log out ?'))
-	{
-		localStorage.removeItem('token');
-		window.location.assign("/login");
-	}
+    if(confirm('Log out ?'))
+    {
+	localStorage.removeItem('token');
+	window.location.assign("/login");
+    }
 }

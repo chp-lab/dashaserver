@@ -16,8 +16,8 @@ const SECRET = "bndxgey34u9034jop"; // Secret key
 // Option for jwt Strategy
 const jwtOptions = {
    jwtFromRequest: ExtractJwt.fromHeader("authorization"),
-   secretOrKey: SECRET,
-}
+   secretOrKey: SECRET
+};
 
 const bcrypt = require('bcrypt');
 
@@ -49,16 +49,14 @@ const influx = new Influx.InfluxDB({
 
 
 app.use((req, res, next) => {
-  const start = Date.now()
+  const start = Date.now();
 
   res.on('finish', () => {
-    const duration = Date.now() - start
+    const duration = (Date.now() - start);
     console.log(`Request to ${req.path} took ${duration}ms`);
   });
-  return next()
+  return next();
 });
-
-
 
 const jwtAuth = new JwtStrategy(jwtOptions, (payload, done) => {
 	console.log("sub: " + payload.sub);
@@ -227,7 +225,7 @@ const loginMiddleware = (req, res, next) => {
 		});
 		connection.release();
 	});
-}
+};
 
 // mysql server informations
 
@@ -266,22 +264,12 @@ app.post("/index", loginMiddleware, (req, res) => {
 app.get("/index", requireJWTAuth, (req, res) => {
 	console.log("/index passed");
 	
-	// For support jwt in next release
+    // For support jwt in next release
     // res.send("Authorized");
-	// Check token in http header
-   
-   
+    // Check token in http header
      res.json({
-                    type: true,
-					message: 'authorized',
-					username: 'super',
-					mqtt: {
-						username:"wzvravkf",
-						password:"v1OZdLXaX06l",
-						url:"m10.cloudmqtt.com",
-						port:37606
-					},
-					
+                type: true,
+		message: 'authorized'			
 	});
 	
 });
@@ -297,7 +285,6 @@ app.get('/login', function(req, res){
 });
 
 app.get('/home', function(req, res){
-  
   res.sendFile(__dirname + "/" + "homepage.html");
 });
 
@@ -313,7 +300,7 @@ app.get('/test', function(req, res){
 
 // Data req, don't forget to add auth
 app.get('/monit', requireJWTAuth, function (req, res) {
-	
+	console.log(__dirname);
 	// console.log(req.headers.authorization);
 	var decoded = jwtDecode(req.headers.authorization);
 	var tmpUsername = `'${decoded.sub}'`;
@@ -378,8 +365,8 @@ app.get('/monit', requireJWTAuth, function (req, res) {
 							res.json(resultObj);
 						}
 					}).catch(err => {
-						res.status(500).send(err.stack)
-					})
+						res.status(500).send(err.stack);
+					});
 					
 				});			
 			}
@@ -389,50 +376,17 @@ app.get('/monit', requireJWTAuth, function (req, res) {
 });
 
 app.use(function (req, res, next) {
-  res.status(404).send("(404) Page not found!")
+  res.status(404).send("(404) Page not found!");
 });
 
 app.use(function (err, req, res, next) {
-  console.error(err.stack)
-  res.status(500).send('(500) Server error!!')
+  console.error(err.stack);
+  res.status(500).send('(500) Server error!!');
 });
-
-/*
-con.on('error', function(err) {
-    console.log('db error', err);
-	// throw err;                            
-	mysql_handleDisconnect();
-	// server variable configures this
- });
- */
  
- mysql_handleDisconnect();
+ mysql_testConnect();
  // handle mysql connection lost
- function mysql_handleDisconnect() {
-
-	/*
-	con.destroy();
-	con = mysql.createConnection(db_config);
-	con.connect(function(err) {
-		if(err != null)
-		{
-			if(err.code == 'PROTOCOL_ENQUEUE_HANDSHAKE_TWICE')
-			{
-				console.log("mysql server already connect");
-			}
-			else
-			{
-				console.log(err.code);
-				setTimeout(mysql_handleDisconnect, 1000);
-			}
-		}
-		else
-		{
-			console.log("connected to mysql server");
-		}
-	});
-	*/
-	// test connection
+ function mysql_testConnect() {
 	mysql_pool.getConnection(function(err, connection) {
 		if (err) 
 		{
@@ -453,16 +407,9 @@ con.on('error', function(err) {
 /**
  * Now, we'll make sure the database exists and boot the app.
  */
-influx.getDatabaseNames()
-  .then(names => {
-    if (!names.includes('envdb')) {
-		console.log("database not found");
-      //return influx.createDatabase('envdb')
-	  return false;
-    }
-  }).then(() => {
+influx.getDatabaseNames().then(() => {
     app.listen(PORT, () => console.log(`Listening on ${ PORT }`));
   }).catch(err => {
-    console.error('failed connect to database')
+    console.error(err);
   });
 

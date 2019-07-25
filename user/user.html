@@ -1,126 +1,116 @@
-  <html>
-  <head>
-	<link rel="icon" type="image/png" href="https://raw.githubusercontent.com/chatpeth/symp/master/public/images/pie-chart.png">
-	<link rel="stylesheet" type="text/css" href="/css/office.css">
-    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/chatpeth/symp/master/public/images/pie-chart.png">
+        <link rel="stylesheet" type="text/css" href="/css/office.css">
+        <title>chp-lab</title>
+        <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 	<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 	<script src="/js/jwt-vanilla.js"></script>
-    <script type="text/javascript">
-      google.charts.load('current', {'packages':['corechart']});
-      // google.charts.setOnLoadCallback(drawChart);
-	  google.charts.setOnLoadCallback(getData);
-	  
-	  function getData() {
-		  var url = "/monit";
-		  var xhr = new XMLHttpRequest();
-		  var mytoken = localStorage.getItem('token');
-		  var jsonResponse;
-		 
-		  xhr.open('GET', url, true);
-		  
-		  xhr.setRequestHeader("Authorization", mytoken);
-		  
-		  xhr.addEventListener('load', function() {
-			var responseObject = this.response;
-			// console.log(responseObject);
-			
-			if(responseObject == 'Unauthorized')
-			{
-				alert("Unauthorized!");
-				window.location.assign("/login");
+        <script type="text/javascript">
+            google.charts.load('current', {'packages':['corechart']});
+            // google.charts.setOnLoadCallback(drawChart);
+            google.charts.setOnLoadCallback(getData);
+            function getData() {
+                var url = "/monit";
+                var xhr = new XMLHttpRequest();
+                var mytoken = localStorage.getItem('token');
+                var jsonResponse;
+                xhr.open('GET', url, true);
+                xhr.setRequestHeader("Authorization", mytoken);
+                
+                xhr.addEventListener('load', function() {
+                    var responseObject = this.response;
+                    // console.log(responseObject);
+                    if(responseObject === 'Unauthorized')
+                    {
+                        alert("Unauthorized!");
+			window.location.assign("/login");	
+                    }
+                    else
+                    {
+                        // console.log(this.response);
+			jsonResponse = JSON.parse(this.response);
+			// console.log(jsonResponse);
 				
-			}
-			else
-			{
-				// console.log(this.response);
-				jsonResponse = JSON.parse(this.response);
-				// console.log(jsonResponse);
+			// Create a new DataTable (Charts expects data in this format)
+			document.getElementById("usernameheader").innerHTML = jsonResponse.username;
 				
-				// Create a new DataTable (Charts expects data in this format)
-				document.getElementById("usernameheader").innerHTML = jsonResponse.username;
+			var __allTable = Object.keys(jsonResponse.results);
 				
-				var __allTable = Object.keys(jsonResponse.results);
+			__allTable.forEach(function(measurement){
+					
+                            var mydata = new google.visualization.DataTable();
+                            var __tableName = measurement;
+					
+                            console.log("tableName= " + __tableName);
+                            // index 0 is time
+                            var __paramName = Object.keys(jsonResponse.results[__tableName][0]);
+                            var chartDiv = document.createElement('div');
+                            chartDiv.id = __tableName;
+                            chartDiv.class = "chartArea";
+                            chartDiv.style.width = '900px';
+                            chartDiv.style.height = '500px';
+                            document.body.appendChild(chartDiv);
+					
+                            // console.log(__paramName);
+                            __paramName.forEach(function(element){
+                                var dataType;
+				console.log(element);
+				if(element === 'time')
+				{
+                                    console.log("Adding timestamp");
+                                    dataType = 'datetime';
+				}
+				else
+				{
+                                    dataType = 'number';
+				}
+				mydata.addColumn(dataType, element);
+                            });
+					
+                            // Loop to add each result from <tableName> to DataTable object
+                            jsonResponse.results[__tableName].forEach(function(element){
+                            // console.log(element);
+                                var tmpDataAdd = [];
+				var i;
+				for(i = 0; i < __paramName.length; i++)
+				{
+                                    if(__paramName[i] === 'time')
+                                    {
+                                        tmpDataAdd[i] = new Date(element[__paramName[i]]);
+                                    }
+                                    else
+                                    {
+					tmpDataAdd[i] = element[__paramName[i]];
+                                    }
+				}
+                                mydata.addRow(tmpDataAdd);
+                            });
+					
+                            var options = {
+                                title: `${jsonResponse.department}: ${__tableName}`,
+				curveType: 'function',
+				legend: {position: 'bottom'},
+				pointSize: 3,
+				backgroundColor: '#F0F0F3',
+                            };
+                            
+                            var chart = new google.visualization.ScatterChart(document.getElementById(__tableName));
+                            chart.draw(mydata, options);
 				
-				__allTable.forEach(function(measurement){
-					
-					var mydata = new google.visualization.DataTable();
-					var __tableName = measurement;
-					
-					console.log("tableName= " + __tableName);
-					// index 0 is time
-					var __paramName = Object.keys(jsonResponse.results[__tableName][0]);
-					
-					
-					var chartDiv = document.createElement('div');
-					chartDiv.id = __tableName;
-					chartDiv.class = "chartArea";
-					chartDiv.style.width = '900px';
-					chartDiv.style.height = '500px';
-					document.body.appendChild(chartDiv);
-					
-					// console.log(__paramName);
-					__paramName.forEach(function(element){
-						
-						var dataType;
-						console.log(element);
-						if(element == 'time')
-						{
-							console.log("Adding timestamp");
-							dataType = 'datetime';
-						}
-						else
-						{
-							dataType = 'number';
-						}
-						mydata.addColumn(dataType, element);
-					});
-					
-						// Loop to add each result from <tableName> to DataTable object
-					jsonResponse.results[__tableName].forEach(function(element){
-						// console.log(element);
-						var tmpDataAdd = [];
-						var i;
-						for(i = 0; i < __paramName.length; i++)
-						{
-							if(__paramName[i] == 'time')
-							{
-								tmpDataAdd[i] = new Date(element[__paramName[i]]);
-							}
-							else
-							{
-								tmpDataAdd[i] = element[__paramName[i]];
-							}
-						}
-						
-						mydata.addRow(tmpDataAdd);
-						
-					});
-					
-					var options = {
-						title: `${jsonResponse.department}: ${__tableName}`,
-						curveType: 'function',
-						legend: { position: 'bottom' },
-						pointSize: 3,
-						backgroundColor: '#F0F0F3',
-						
-					};
-					var chart = new google.visualization.ScatterChart(document.getElementById(__tableName));
-					chart.draw(mydata, options);
-				
-				});				
-			}		
-	});
-
-
-  xhr.send(null);
-}
+			});				
+                    }		
+                });
+                xhr.send(null);
+            }
     </script>
   </head>
   <body>
-	<h2 id="usernameheader">user</h2>
-    <div id="maindiv" style="height: 100px">
-	<button id="logoutBtn" onclick="logout()">logout</button>
-	</div>
-	<script src="/js/jwt-vanilla.js"></script>
+      <h2 id="usernameheader">user</h2>
+      <div id="maindiv" style="height: 100px">
+          <button id="logoutBtn" onclick="logout()">logout</button>
+      </div>
+      <script src="/js/jwt-vanilla.js"></script>
   </body>
 </html>

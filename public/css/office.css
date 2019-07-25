@@ -23,7 +23,7 @@ h2 {
 	font-family: Arial, Helvetica, sans-serif;
 }
 
-p {
+p, label {
 	font-family: Arial, Helvetica, sans-serif;
     font-size: 12px;
 	font-weight: bold;
@@ -136,10 +136,6 @@ header.site-header {
 	margin-top: 20px;
 }
 
-#__main {
-	display: flex;
-    justify-content: left;
-}
 #chart_div {
 	/*border:2px solid gray;*/
 	text-align: left;
@@ -271,10 +267,6 @@ header.site-header {
 	display: inline;
 }
 
-#__realtime {
-	display: flex;
-	justify-content: left;
-}
 #livediv {
 	text-align: left;
 	padding: 10px 10px;
@@ -304,15 +296,6 @@ header.site-header {
 	width: 80%;
 }
 
-#parameterDiv, #setting, #readCoil , #resetToDefault{
-	border:4px solid white;
-	margin-top: 10px;
-	margin-left: 120px;
-	margin-right: 120px;
-	border-radius: 10px;
-	background-color: white;
-	width: 720;
-}
 #paramTable {
   font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
   border-collapse: collapse;
