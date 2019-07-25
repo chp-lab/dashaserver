@@ -133,7 +133,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 
 const requireJWTAuth = passport.authenticate("jwt",{session:false});
 // port for running server
-const PORT = process.env.PORT || 80;
+const PORT = process.env.PORT || 81;
 
 // login
 const loginMiddleware = (req, res, next) => {
