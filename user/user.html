@@ -94,9 +94,15 @@
 				legend: {position: 'bottom'},
 				pointSize: 3,
 				backgroundColor: '#F0F0F3',
+                                explorer: {
+                                    actions: ['dragToZoom', 'rightClickToReset'],
+                                    // axis: 'vertical',
+                                    keepInBounds: true,
+                                    maxZoomIn: 300.0
+                                }                              
                             };
                             
-                            var chart = new google.visualization.ScatterChart(document.getElementById(__tableName));
+                            var chart = new google.visualization.LineChart(document.getElementById(__tableName));
                             chart.draw(mydata, options);
 				
 			});				

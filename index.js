@@ -250,14 +250,11 @@ app.post("/index", loginMiddleware, (req, res) => {
    };
    const mytoken = jwt.encode(payload, SECRET);
    //res.send(jwt.encode(payload, SECRET));
-   
-   
    res.json({
-                    type: true,
-					message: 'Authentication successful!',
-                    token: mytoken
+                type: true,
+                message: 'Authentication successful!',
+                token: mytoken
 	});
-	
 });
 
 // user required information
