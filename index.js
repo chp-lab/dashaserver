@@ -292,7 +292,7 @@ app.get('/user', function(req, res){
 
 app.get('/test', function(req, res){
   
-  res.sendFile(__dirname + "/test.html");
+  res.json({test:"Hello World!"});
 });
 
 // Data req, don't forget to add auth
