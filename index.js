@@ -131,7 +131,10 @@ passport.use(jwtAuth);
 app.use(express.static('public'));
 app.use(bodyParser.urlencoded({ extended: false }));
 
-const requireJWTAuth = passport.authenticate("jwt",{session:false});
+const requireJWTAuth = passport.authenticate("jwt",{	session:false,
+														// successRedirect: '/',
+														failureRedirect: '/unauthorized'
+													});
 // port for running server
 const PORT = process.env.PORT || 81;
 
@@ -160,7 +163,7 @@ const loginMiddleware = (req, res, next) => {
 			
 			if(err2)
 			{
-				console.log(' mysql_pool.release()');
+				console.log('mysql_pool.release()');
 				connection.release();
 				
 				res.json({
@@ -266,7 +269,7 @@ app.get("/index", requireJWTAuth, (req, res) => {
     // Check token in http header
      res.json({
                 type: true,
-		message: 'authorized'			
+				message: 'authorized'			
 	});
 	
 });
@@ -292,7 +295,21 @@ app.get('/user', function(req, res){
 
 app.get('/test', function(req, res){
   
-  res.json({test:"Hello World!"});
+  res.json({type:true, test:"Hello World!"});
+});
+
+app.get('/myinform',requireJWTAuth, function (req, res) {
+	res.json({
+		type:true, 
+		message:'Authorized'
+	});
+});
+
+app.get('/unauthorized', function (req, res) {
+	res.json({
+        type: false,
+		message: 'Unauthorized'			
+	});
 });
 
 // Data req, don't forget to add auth
@@ -358,7 +375,7 @@ app.get('/monit', requireJWTAuth, function (req, res) {
 						console.log("Query complete " + i + " time(s)");
 						if(i >= jsonMysqlRes.length)
 						{
-							var resultObj = {username:jsonMysqlRes[0].username, machineName:jsonMysqlRes[0].machineName, department:jsonMysqlRes[0].department, results:__all_results};
+							var resultObj = {type:true, username:jsonMysqlRes[0].username, machineName:jsonMysqlRes[0].machineName, department:jsonMysqlRes[0].department, results:__all_results};
 							res.json(resultObj);
 						}
 					}).catch(err => {

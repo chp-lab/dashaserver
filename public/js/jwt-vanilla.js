@@ -48,26 +48,33 @@ function getSecret()
   
   var mytoken = localStorage.getItem('token');
   var tag = "getSecret: ";
+  var jsonResponse;
   
   xhr.open('GET', url, true);
   
   xhr.setRequestHeader("Authorization", mytoken);
   
   xhr.addEventListener('load', function() {
-    //var responseObject = JSON.parse(this.response);
-	var responseObject = this.response;
-	// console.log(responseObject);
-	if(responseObject === 'Unauthorized')
+	
+	try
 	{
-		//alert("Unauthorized!");
-		window.location.assign("/login");
+		jsonResponse = JSON.parse(this.response);
+		console.log(jsonResponse);
+		if(!jsonResponse.type)
+		{
+			window.location.assign("/login");
+		}
+		else
+		{
+			window.location.assign("/home");
+		}
 	}
-	else
+	catch(err)
 	{
-		// handle if user still not log out
-		console.log(tag + "login pass");
-		window.location.assign("/home");
+		console.log("not json object!");
+		window.location.assign("/login");	
 	}
+	
   });
 
   xhr.send(null);
@@ -88,17 +95,23 @@ function getUserInform()
   
   xhr.addEventListener('load', function() {
     var responseObject = this.response;
-    console.log("db0x36");
+	console.log("getUserInform");
+    console.log(responseObject);
 	
-    if(responseObject === 'Unauthorized')
-    {
-	alert("Unauthorized!");
-	window.location.assign("/login");	
-    }
-    else
-    {
-	jsonResponse = JSON.parse(this.response);
-    }
+	try
+	{
+		jsonResponse = JSON.parse(this.response);
+		console.log(jsonResponse);
+		if(!jsonResponse.type)
+		{
+			window.location.assign("/login");
+		}
+	}
+	catch(err)
+	{
+		console.log("not json object!");
+		window.location.assign("/login");	
+	}
   });
 
   xhr.send(null);
