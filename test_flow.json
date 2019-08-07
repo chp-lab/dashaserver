@@ -1,0 +1,309 @@
+[
+    {
+        "id": "557922a6.cee8cc",
+        "type": "mqtt out",
+        "z": "3301d4ae.eedb0c",
+        "name": "",
+        "topic": "mm19070001",
+        "qos": "0",
+        "retain": "false",
+        "broker": "bd5639da.cd9158",
+        "x": 600,
+        "y": 120,
+        "wires": []
+    },
+    {
+        "id": "8b321dcf.487a3",
+        "type": "function",
+        "z": "3301d4ae.eedb0c",
+        "name": "influx line protocol",
+        "func": "var curHumid = context.get(\"humid\")||0;\nvar curTemp = context.get(\"temp\")||0;\nvar value = msg.payload;\nvar uts = (Math.floor(Date.now())).toString();\n\nif(msg.topic === \"room1/humid\")\n{\n    context.set(\"humid\", value);\n}\nelse if(msg.topic === \"room1/temp\")\n{\n    context.set(\"temp\", value);\n    msg.payload = \"mm19070001,location=Sadao humid=\" + curHumid +  \",temp=\" + curTemp + \" \" + uts + \"000000\";\n    \n    return msg;\n}\n",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 330,
+        "y": 40,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "23071408.f2e1fc",
+        "type": "debug",
+        "z": "3301d4ae.eedb0c",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 590,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "40cf6cf0.9f9ea4",
+        "type": "inject",
+        "z": "3301d4ae.eedb0c",
+        "name": "",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "900",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "x": 130,
+        "y": 260,
+        "wires": [
+            [
+                "b13ce2cf.d67a4"
+            ]
+        ]
+    },
+    {
+        "id": "e315892c.7cf348",
+        "type": "function",
+        "z": "3301d4ae.eedb0c",
+        "name": "influx line protocol",
+        "func": "var curHumid = (50 + 20*Math.random()).toFixed(2);\nvar curTemp = (20 + 5*Math.random()).toFixed(2);\nmsg.payload = \"mm19070002,location=Sadao humid=\" + curHumid +  \",temp=\" + curTemp + \" \" + msg.payload + \"000000\";\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 450,
+        "y": 200,
+        "wires": [
+            [
+                "8e29b7b8.73c108",
+                "6190434b.db4d0c"
+            ]
+        ]
+    },
+    {
+        "id": "b13ce2cf.d67a4",
+        "type": "delay",
+        "z": "3301d4ae.eedb0c",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "10",
+        "timeoutUnits": "milliseconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "x": 310,
+        "y": 260,
+        "wires": [
+            [
+                "e315892c.7cf348"
+            ]
+        ]
+    },
+    {
+        "id": "8e29b7b8.73c108",
+        "type": "debug",
+        "z": "3301d4ae.eedb0c",
+        "name": "",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 700,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "6190434b.db4d0c",
+        "type": "mqtt out",
+        "z": "3301d4ae.eedb0c",
+        "name": "",
+        "topic": "mm19070002",
+        "qos": "0",
+        "retain": "false",
+        "broker": "bd5639da.cd9158",
+        "x": 600,
+        "y": 260,
+        "wires": []
+    },
+    {
+        "id": "d95e1ef1.a5edd",
+        "type": "inject",
+        "z": "3301d4ae.eedb0c",
+        "name": "",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "900",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "x": 130,
+        "y": 420,
+        "wires": [
+            [
+                "7c58f86f.83e418"
+            ]
+        ]
+    },
+    {
+        "id": "9286ddde.d4ab9",
+        "type": "function",
+        "z": "3301d4ae.eedb0c",
+        "name": "influx line protocol",
+        "func": "var i = (7 + 3*Math.random()).toFixed(2);\nvar v = (200 + 20*Math.random()).toFixed(2);\nvar pf = (0.5 + 0.5*Math.random()).toFixed(2);\n\nvar p = (i*v*pf).toFixed(2);\n\n//msg.payload = \"mm19070003,location=Sadao humid=\" + curHumid +  \",temp=\" + curTemp + \" \" + msg.payload + \"000000\";\nmsg.payload = `mm19070003,location=Hatyai I=${i},V=${v},PF=${pf},P=${p} ${msg.payload}000000`;\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 450,
+        "y": 360,
+        "wires": [
+            [
+                "f8f7ba2c.5ada18",
+                "5c3f4bb1.c457e4"
+            ]
+        ]
+    },
+    {
+        "id": "7c58f86f.83e418",
+        "type": "delay",
+        "z": "3301d4ae.eedb0c",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "10",
+        "timeoutUnits": "milliseconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "x": 310,
+        "y": 420,
+        "wires": [
+            [
+                "9286ddde.d4ab9"
+            ]
+        ]
+    },
+    {
+        "id": "f8f7ba2c.5ada18",
+        "type": "debug",
+        "z": "3301d4ae.eedb0c",
+        "name": "",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 700,
+        "y": 360,
+        "wires": []
+    },
+    {
+        "id": "5c3f4bb1.c457e4",
+        "type": "mqtt out",
+        "z": "3301d4ae.eedb0c",
+        "name": "",
+        "topic": "mm19070003",
+        "qos": "0",
+        "retain": "false",
+        "broker": "bd5639da.cd9158",
+        "x": 600,
+        "y": 420,
+        "wires": []
+    },
+    {
+        "id": "8e75b928.27e0f8",
+        "type": "mqtt in",
+        "z": "3301d4ae.eedb0c",
+        "name": "",
+        "topic": "room1/temp",
+        "qos": "2",
+        "datatype": "auto",
+        "broker": "bd5639da.cd9158",
+        "x": 130,
+        "y": 40,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "53b1b23a.5ba6bc",
+        "type": "mqtt in",
+        "z": "3301d4ae.eedb0c",
+        "name": "",
+        "topic": "room1/humid",
+        "qos": "2",
+        "datatype": "auto",
+        "broker": "bd5639da.cd9158",
+        "x": 130,
+        "y": 100,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "66a6b6b5.16acf8",
+        "type": "function",
+        "z": "3301d4ae.eedb0c",
+        "name": "influx line protocol",
+        "func": "var curHumid = (50 + 20*Math.random()).toFixed(2);\nvar curTemp = (20 + 5*Math.random()).toFixed(2);\nmsg.payload = \"mm19070001,location=Sadao humid=\" + curHumid +  \",temp=\" + curTemp + \" \" + msg.payload + \"000000\";\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 350,
+        "y": 80,
+        "wires": [
+            [
+                "23071408.f2e1fc",
+                "557922a6.cee8cc"
+            ]
+        ]
+    },
+    {
+        "id": "b0e32290.7b874",
+        "type": "inject",
+        "z": "3301d4ae.eedb0c",
+        "name": "",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "900",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "x": 130,
+        "y": 160,
+        "wires": [
+            [
+                "66a6b6b5.16acf8"
+            ]
+        ]
+    },
+    {
+        "id": "bd5639da.cd9158",
+        "type": "mqtt-broker",
+        "z": "",
+        "name": "atopMqtt",
+        "broker": "localhost",
+        "port": "1883",
+        "clientid": "",
+        "usetls": false,
+        "compatmode": true,
+        "keepalive": "60",
+        "cleansession": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthPayload": "",
+        "closeTopic": "",
+        "closeQos": "0",
+        "closePayload": "",
+        "willTopic": "",
+        "willQos": "0",
+        "willPayload": ""
+    }
+]

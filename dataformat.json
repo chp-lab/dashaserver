@@ -1,0 +1,41 @@
+// Json object
+"results":{
+	// Add only 1st machine to graph first
+	"Pump-mm19070003":
+		[	
+			// Aray of time series parameter
+			// Json array
+			{"PF":0.98,"time":"2019-07-31T00:00:22.122Z","V":213.76,"P":1910.5,"I":9.12},
+			{"PF":0.96,"time":"2019-07-31T00:01:22.123Z","V":218.05,"P":2093.28,"I":10},
+			{"PF":0.81,"time":"2019-07-31T00:02:22.124Z","V":201.04,"P":1384.16,"I":8.5}
+		],
+	"CNC1-mm19070001":
+		[
+			{"humid":54.76,"temp":22.12,"time":"2019-07-31T00:00:22.122Z"},
+			{"humid":54.22,"temp":21.35,"time":"2019-07-31T00:01:22.123Z"},
+			{"humid":58.48,"temp":23.01,"time":"2019-07-31T00:02:22.124Z"}
+		],
+	"CNC2-mm19070002":
+		[
+			{"humid":69.97,"temp":23.19,"time":"2019-07-31T00:00:22.122Z"},
+			{"humid":69.33,"temp":21.05,"time":"2019-07-31T00:01:22.123Z"},
+			{"humid":67.63,"temp":21.43,"time":"2019-07-31T00:02:22.124Z"}
+		]
+}
+################
+Example for Json Array
+
+[   
+	{"ircEvent": "PRIVMSG", "method": "newURI", "regex": "^http://.*"},
+	{"ircEvent": "PRIVMSG", "method": "deleteURI", "regex": "^delete.*"},
+    {"ircEvent": "PRIVMSG", "method": "randomURI", "regex": "^random.*"}
+] 
+################
+Example for Json Object
+
+{"bindings": [
+        {"ircEvent": "PRIVMSG", "method": "newURI", "regex": "^http://.*"},
+        {"ircEvent": "PRIVMSG", "method": "deleteURI", "regex": "^delete.*"},
+        {"ircEvent": "PRIVMSG", "method": "randomURI", "regex": "^random.*"}
+    ]
+};
