@@ -118,7 +118,14 @@ const jwtAuth = new JwtStrategy(jwtOptions, (payload, done) => {
 			}
 		
 		});
-		connection.release();
+		try
+		{
+			connection.release();
+		}
+		catch(errcon)
+		{
+			console.log("Error on release mysql connection");
+		}
 	});
 });
 // passport middle ware auth
@@ -226,7 +233,14 @@ const loginMiddleware = (req, res, next) => {
 				});
 			}	
 		});
-		connection.release();
+		try
+		{
+			connection.release();
+		}
+		catch(errcon)
+		{
+			console.log("Error on release mysql connection");
+		}
 	});
 };
 
@@ -283,6 +297,16 @@ app.get("/machine", requireJWTAuth, (req, res) => {
 	var machineID = `${req.headers.machineid}`;
 	var tag = 'machine';
 	
+	// get datetime from header
+	var atdatetime = `${req.headers.atdatetime}`;
+	console.log("Start date: " + atdatetime);
+	
+	var todatetime = `${req.headers.todatetime}`;
+	console.log("End date: " + todatetime);
+	
+	// Create datetime format for query langauge
+	
+	
 	// Check permission of user A for access table m
 	var sql = `SELECT * FROM Machines WHERE (username=${tmpUsername} AND machineID='${machineID}')`;
 	console.log(sql);
@@ -327,11 +351,20 @@ app.get("/machine", requireJWTAuth, (req, res) => {
 				// query data from influxdb
 				var d = new Date();
 				// Wait->add time to req
-				var tmp_timeStamp = d.getFullYear().toString() + "-" + ( "0" + (d.getMonth() + 1).toString()).slice(-2) +  "-" + ( "0" + d.getDate().toString()).slice(-2) + 'T00:00:00Z';
-				var query_obj = {tableName: `"${machineID}"`, timeStamp:tmp_timeStamp, limit: 0};
+				// Header format YYYY-M-D --> Need to slice
+				// SQL format YYYY-MM-DD
+				var atdateArray = atdatetime.split("-");
+				var todateArray = todatetime.split("-");
+				
+				// splited format: {"YYYY", "M", "D"};
+				// var tmp_timeStamp = d.getFullYear().toString() + "-" + ( "0" + (d.getMonth() + 1).toString()).slice(-2) +  "-" + ( "0" + d.getDate().toString()).slice(-2) + 'T00:00:00Z';
+				var tmp_timeStamp = atdateArray[0] + "-" + ( "0" + atdateArray[1]).slice(-2) +  "-" + ( "0" + atdateArray[2]).slice(-2) + 'T00:00:00Z';
+				var end_timeStamp = todateArray[0] + "-" + ( "0" + todateArray[1]).slice(-2) +  "-" + ( "0" + todateArray[2]).slice(-2) + 'T23:59:59Z';
+
+				var query_obj = {tableName: `"${machineID}"`, timeStamp:tmp_timeStamp, endStamp:end_timeStamp, limit: 0};
 				
 				// Get today data
-				var query_cmd = `SELECT *::field FROM ${query_obj.tableName} WHERE time > '${query_obj.timeStamp}' limit ${query_obj.limit}`;
+				var query_cmd = `SELECT *::field FROM ${query_obj.tableName} WHERE (time > '${query_obj.timeStamp}' AND time <= '${query_obj.endStamp}') limit ${query_obj.limit}`;
 				console.log(query_cmd);
 						
 				// Non blocking function
@@ -353,7 +386,14 @@ app.get("/machine", requireJWTAuth, (req, res) => {
 			}
 			
 		});
-		connection.release();
+		try
+		{
+			connection.release();
+		}
+		catch(errcon)
+		{
+			console.log("Error on release mysql connection");
+		}
 	});
 	
 });
@@ -437,7 +477,14 @@ app.get('/list', requireJWTAuth, function (req, res) {
 			
 			res.json({type: true, machines:jsonMysqlRes, detail:tmpUsername});
 		});
-		connection.release();
+		try
+		{
+			connection.release();
+		}
+		catch(errcon)
+		{
+			console.log("Error on release mysql connection");
+		}
 	});
 	
 	
@@ -517,7 +564,14 @@ app.get('/monit', requireJWTAuth, function (req, res) {
 				});			
 			}
 		});
-		connection.release();
+		try
+		{
+			connection.release();
+		}
+		catch(errcon)
+		{
+			console.log("Error on release mysql connection");
+		}
 	});
 });
 
@@ -543,7 +597,6 @@ app.use(function (err, req, res, next) {
 		else
 		{
 			console.log("mysql connected");
-			connection.release();
 		}
 		
 	});
