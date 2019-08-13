@@ -288,8 +288,93 @@ app.get("/index", requireJWTAuth, (req, res) => {
 	
 });
 
+app.get("/realtime", requireJWTAuth, (req, res) => {
+	var decoded = jwtDecode(req.headers.authorization);
+	var tmpUsername = `${decoded.sub}`;
+	var machineID = `${req.headers.machineid}`;
+	var tag = 'realtime';
+	// Check permission of user A for access table m
+	var sql = `SELECT * FROM Machines WHERE (username='${tmpUsername}' AND machineID='${machineID}')`;
+	console.log(sql);
+	var jsonMysqlRes;
+	
+	console.log(tag + tmpUsername + ":" + machineID);
+	mysql_pool.getConnection(function(err, connection) {
+		if (err) {
+			connection.release();
+			console.log(' Error getting mysql_pool connection: ' + err);
+			res.json({
+					type: false,
+					message: 'server_error',
+					token: ""
+			});
+			throw err;
+		}
+		
+		connection.query(sql, function(err2, result, fields){
+			if(err2)
+			{
+				console.log(' mysql_pool.release()');
+				connection.release();
+				
+				res.json({
+					type: false,
+					message: 'server_error',
+					token: ""
+				});
+			}
+		
+			// Keep user information from mysql
+			jsonMysqlRes = JSON.parse(JSON.stringify(result));
+			
+			console.log(jsonMysqlRes);
+			var checkMachineID = jsonMysqlRes[0].machineID;
+			
+			console.log("checkMachineID= " + checkMachineID);
+			if(checkMachineID == machineID)
+			{
+				console.log("Authorized user req");
+				
+				
+				// Get today data
+				var query_cmd = `SELECT *::field FROM "${machineID}" order by desc limit 1`;
+				console.log(query_cmd);
+						
+				// Non blocking function
+				influx.query(query_cmd).then(influxResult => {
+						var jsonResult = JSON.parse(JSON.stringify(influxResult));
+						console.log("########");
+						console.log(jsonResult);
+						var resultObj = {type:true, username:jsonMysqlRes[0].username, machineID:jsonMysqlRes[0].machineID, machineName:jsonMysqlRes[0].machineName, department:jsonMysqlRes[0].department, results:jsonResult};
+						
+						res.json(resultObj);
+					
+					}).catch(err => {
+						res.status(500).send(err.stack);
+					});
+			}
+			else
+			{
+				console.log("Unauthorized user req");
+				res.json({type: false, results:'Unauthorized req'});
+			}
+			
+		});
+		try
+		{
+			connection.release();
+		}
+		catch(errcon)
+		{
+			console.log("Error on release mysql connection");
+		}
+	});
+	
+});
+
 // user required information
 app.get("/machine", requireJWTAuth, (req, res) => {
+	
 	var decoded = jwtDecode(req.headers.authorization);
 	var tmpUsername = `'${decoded.sub}'`;
 	
@@ -304,9 +389,10 @@ app.get("/machine", requireJWTAuth, (req, res) => {
 	var todatetime = `${req.headers.todatetime}`;
 	console.log("End date: " + todatetime);
 	
-	// Create datetime format for query langauge
+	var reqcmd = `${req.headers.reqcmd}`;
+	console.log("reqcmd= " + reqcmd);
 	
-	
+	// Create datetime format for query langauge	
 	// Check permission of user A for access table m
 	var sql = `SELECT * FROM Machines WHERE (username=${tmpUsername} AND machineID='${machineID}')`;
 	console.log(sql);
@@ -358,21 +444,39 @@ app.get("/machine", requireJWTAuth, (req, res) => {
 				
 				// splited format: {"YYYY", "M", "D"};
 				// var tmp_timeStamp = d.getFullYear().toString() + "-" + ( "0" + (d.getMonth() + 1).toString()).slice(-2) +  "-" + ( "0" + d.getDate().toString()).slice(-2) + 'T00:00:00Z';
-				var tmp_timeStamp = atdateArray[0] + "-" + ( "0" + atdateArray[1]).slice(-2) +  "-" + ( "0" + atdateArray[2]).slice(-2) + 'T00:00:00Z';
-				var end_timeStamp = todateArray[0] + "-" + ( "0" + todateArray[1]).slice(-2) +  "-" + ( "0" + todateArray[2]).slice(-2) + 'T23:59:59Z';
+				var tmp_timeStamp = atdateArray[0] + "-" + ( "0" + atdateArray[1]).slice(-2) +  "-" + ( "0" + atdateArray[2]).slice(-2);
+				var end_timeStamp = todateArray[0] + "-" + ( "0" + todateArray[1]).slice(-2) +  "-" + ( "0" + todateArray[2]).slice(-2);
+				
+				if(tmp_timeStamp == end_timeStamp)
+				{
+					console.log("Bad reqcmd");
+					reqcmd = "now";
+				}
 
 				var query_obj = {tableName: `"${machineID}"`, timeStamp:tmp_timeStamp, endStamp:end_timeStamp, limit: 0};
 				
 				// Get today data
-				var query_cmd = `SELECT *::field FROM ${query_obj.tableName} WHERE (time > '${query_obj.timeStamp}' AND time <= '${query_obj.endStamp}') limit ${query_obj.limit}`;
+				// var query_cmd = `SELECT *::field FROM ${query_obj.tableName} WHERE time >= '${query_obj.timeStamp}' AND time <= '${query_obj.endStamp}' limit ${query_obj.limit}`;
+				var query_cmd;
+				
+				if(reqcmd == "now")
+				{
+					query_cmd = `SELECT *::field FROM ${query_obj.tableName} WHERE time >= '${query_obj.timeStamp}' limit ${query_obj.limit} tz('Asia/Bangkok')`;
+
+				}
+				else
+				{
+					query_cmd = `SELECT *::field FROM ${query_obj.tableName} WHERE time >= '${query_obj.timeStamp}' AND time <='${query_obj.endStamp}' limit ${query_obj.limit} tz('Asia/Bangkok')`;
+				}
 				console.log(query_cmd);
 						
 				// Non blocking function
 				influx.query(query_cmd).then(influxResult => {
 						var jsonResult = JSON.parse(JSON.stringify(influxResult));
-						
+						// console.log("!!!!!");
+						// console.log(jsonResult);
 						var resultObj = {type:true, username:jsonMysqlRes[0].username, machineID:jsonMysqlRes[0].machineID, machineName:jsonMysqlRes[0].machineName, department:jsonMysqlRes[0].department, results:jsonResult};
-						// console.log(resultObj);
+						
 						res.json(resultObj);
 					
 					}).catch(err => {
