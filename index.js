@@ -29,7 +29,7 @@ const os = require('os');
 var jwtDecode = require('jwt-decode');
 
 const influx = new Influx.InfluxDB({
-  host: '54.254.186.136:8086',
+  host: 'localhost:8086',
   username: 'chp-lab',
   password:'atop3352',
   database: 'envdb',
@@ -248,7 +248,7 @@ const loginMiddleware = (req, res, next) => {
 
 var db_config = {
 	connectionLimit : 100,
-	host: "54.254.186.136",
+	host: "localhost",
 	user: "admin",
 	password: "0x00ff0000",
 	database: "chplab"
