@@ -1,0 +1,79 @@
+[
+    {
+        "id": "d9cd2032.46337",
+        "type": "influxdb out",
+        "z": "65fe0017.4ccfb",
+        "influxdb": "7327ba80.cbed34",
+        "name": "",
+        "measurement": "env,host=chp-lab-ubuntu,location=bangkok-th,topic=env",
+        "precision": "",
+        "retentionPolicy": "",
+        "x": 650,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "3fa76b5a.328ae4",
+        "type": "function",
+        "z": "65fe0017.4ccfb",
+        "name": "single value",
+        "func": "var curTemp = parseFloat((20 + 5*Math.random()).toFixed(2));\nmsg.payload = {temp:curTemp};\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 310,
+        "y": 320,
+        "wires": [
+            [
+                "d9cd2032.46337",
+                "9270ed79.2b2b6"
+            ]
+        ]
+    },
+    {
+        "id": "fc019834.db3f28",
+        "type": "inject",
+        "z": "65fe0017.4ccfb",
+        "name": "",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "60",
+        "crontab": "",
+        "once": false,
+        "onceDelay": "",
+        "x": 110,
+        "y": 320,
+        "wires": [
+            [
+                "3fa76b5a.328ae4"
+            ]
+        ]
+    },
+    {
+        "id": "9270ed79.2b2b6",
+        "type": "debug",
+        "z": "65fe0017.4ccfb",
+        "name": "",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "x": 470,
+        "y": 260,
+        "wires": []
+    },
+    {
+        "id": "7327ba80.cbed34",
+        "type": "influxdb",
+        "z": "",
+        "hostname": "54.254.186.136",
+        "port": "8086",
+        "protocol": "http",
+        "database": "envdb",
+        "name": "envdb",
+        "usetls": false,
+        "tls": ""
+    }
+]

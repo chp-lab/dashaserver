@@ -1,0 +1,131 @@
+[
+    {
+        "id": "3aed4c81.7c69d4",
+        "type": "inject",
+        "z": "65fe0017.4ccfb",
+        "name": "",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "x": 120,
+        "y": 420,
+        "wires": [
+            [
+                "cc532d7a.a6223"
+            ]
+        ]
+    },
+    {
+        "id": "cc532d7a.a6223",
+        "type": "influxdb in",
+        "z": "65fe0017.4ccfb",
+        "influxdb": "7327ba80.cbed34",
+        "name": "",
+        "query": "SELECT * from env",
+        "rawOutput": false,
+        "precision": "",
+        "retentionPolicy": "",
+        "x": 340,
+        "y": 420,
+        "wires": [
+            [
+                "53f6a5cc.37d93c"
+            ]
+        ]
+    },
+    {
+        "id": "53f6a5cc.37d93c",
+        "type": "debug",
+        "z": "65fe0017.4ccfb",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "x": 610,
+        "y": 420,
+        "wires": []
+    },
+    {
+        "id": "dcd975f.55a0d88",
+        "type": "inject",
+        "z": "65fe0017.4ccfb",
+        "name": "",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "x": 140,
+        "y": 620,
+        "wires": [
+            [
+                "18fca839.e7b438"
+            ]
+        ]
+    },
+    {
+        "id": "18fca839.e7b438",
+        "type": "function",
+        "z": "65fe0017.4ccfb",
+        "name": "simple query",
+        "func": "msg.query=\"SELECT * FROM \\\"env\\\" where location=\\'bangkok-th\\';\";\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 300,
+        "y": 620,
+        "wires": [
+            [
+                "f40eb1c2.8af9c"
+            ]
+        ]
+    },
+    {
+        "id": "f40eb1c2.8af9c",
+        "type": "influxdb in",
+        "z": "65fe0017.4ccfb",
+        "influxdb": "7327ba80.cbed34",
+        "name": "time query",
+        "query": "",
+        "rawOutput": false,
+        "precision": "",
+        "retentionPolicy": "",
+        "x": 463,
+        "y": 620,
+        "wires": [
+            [
+                "e2320a1d.9e9938"
+            ]
+        ]
+    },
+    {
+        "id": "e2320a1d.9e9938",
+        "type": "debug",
+        "z": "65fe0017.4ccfb",
+        "name": "",
+        "active": true,
+        "console": "false",
+        "complete": "false",
+        "x": 621,
+        "y": 620,
+        "wires": []
+    },
+    {
+        "id": "7327ba80.cbed34",
+        "type": "influxdb",
+        "z": "",
+        "hostname": "54.254.186.136",
+        "port": "8086",
+        "protocol": "http",
+        "database": "envdb",
+        "name": "envdb",
+        "usetls": false,
+        "tls": ""
+    }
+]

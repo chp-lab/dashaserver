@@ -1,0 +1,112 @@
+[
+    {
+        "id": "d4b7a618.33edb8",
+        "type": "inject",
+        "z": "65fe0017.4ccfb",
+        "name": "",
+        "topic": "env",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "60",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "x": 120,
+        "y": 100,
+        "wires": [
+            [
+                "d073adbe.50619"
+            ]
+        ]
+    },
+    {
+        "id": "6b728a58.df5694",
+        "type": "mqtt out",
+        "z": "65fe0017.4ccfb",
+        "name": "env",
+        "topic": "env",
+        "qos": "0",
+        "retain": "false",
+        "broker": "9d8a7944.350638",
+        "x": 650,
+        "y": 160,
+        "wires": []
+    },
+    {
+        "id": "b95aac1d.9689e",
+        "type": "function",
+        "z": "65fe0017.4ccfb",
+        "name": "randFunc",
+        "func": "var curTemp = (20 + 5*Math.random()).toFixed(2);\nmsg.payload = \"env,location=hatyai-th temp=\" + curTemp + \" \" + msg.payload + \"000000\";\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 520,
+        "y": 100,
+        "wires": [
+            [
+                "6b728a58.df5694",
+                "d08f15be.53a9b8"
+            ]
+        ]
+    },
+    {
+        "id": "d08f15be.53a9b8",
+        "type": "debug",
+        "z": "65fe0017.4ccfb",
+        "name": "",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "x": 680,
+        "y": 40,
+        "wires": []
+    },
+    {
+        "id": "d073adbe.50619",
+        "type": "delay",
+        "z": "65fe0017.4ccfb",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "10",
+        "timeoutUnits": "milliseconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "x": 310,
+        "y": 100,
+        "wires": [
+            [
+                "b95aac1d.9689e"
+            ]
+        ]
+    },
+    {
+        "id": "9d8a7944.350638",
+        "type": "mqtt-broker",
+        "z": "",
+        "name": "atop-iot",
+        "broker": "m15.cloudmqtt.com",
+        "port": "19824",
+        "clientid": "",
+        "usetls": false,
+        "compatmode": true,
+        "keepalive": "60",
+        "cleansession": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthPayload": "",
+        "closeTopic": "",
+        "closeQos": "0",
+        "closePayload": "",
+        "willTopic": "",
+        "willQos": "0",
+        "willPayload": ""
+    }
+]

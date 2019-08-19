@@ -1,0 +1,58 @@
+// Create
+CREATE TABLE CUSTOMERSTAB
+(	CUSNO integer NOT NULL PRIMARY KEY,
+	CUSNAME char(10),
+	SALENO integer,
+	FOREIGN KEY (SALENO) REFERENCES SALESTAB(SALENO));
+	
+// Insert
+INSERT INTO BANGKOKSTAFF
+SELECT *
+FROM SALESTAB
+WHERE ADDRESS = 'Bangkok';
+
+// Update
+UPDATE CUSTOMERSTAB
+SET RATING = 20;
+WHERE SALENO = 1001;
+
+// Delete
+DELETE FROM SALETAB
+WHERE SALENO = 1003;
+
+// Select
+SELECT *
+FROM <table name>;
+
+SELECT <COLUMN 1, ... >
+FROM <table name>;
+
+// Order by
+// ASC มากไปน้อย
+// DESC มากไปน้อย
+SELECT <column 1, .., >
+FROM <table name>
+[WHERE condition]
+[ORDER BY <column 1, column2, ...> [ASC][DESC]];
+
+// Operator
+SELECT ITEM, WHOLESALE, (WHOLESALE - 15) AS RETAIL
+FROM PRICE;
+
+SELECT *
+FROM ...
+WHERE ADDRESS IN(.., ..., ...);
+
+SELECT *
+FROM ...
+WHERE ... > ...
+AND ... < ...;
+
+// COUNT
+SELECT COUNT(*)
+FROM ...
+
+
+
+
+

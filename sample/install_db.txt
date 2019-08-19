@@ -1,0 +1,277 @@
+**Note: 1. If your operating system is using systemd (Ubuntu 15.04+, Debian 8+): skip to step 2
+		2. Run $ sudo apt-get update before follow this manual
+Distributor ID: Ubuntu
+Description:    Ubuntu 16.04.6 LTS
+Release:        16.04
+Codename:       xenial
+
+Step1: Add repos, https://docs.influxdata.com/influxdb/v1.3/introduction/installation/	--> Install influxdb
+$curl -sL https://repos.influxdata.com/influxdb.key | sudo apt-key add -
+$source /etc/lsb-release
+$echo "deb https://repos.influxdata.com/${DISTRIB_ID,,} ${DISTRIB_CODENAME} stable" | sudo tee /etc/apt/sources.list.d/influxdb.list
+
+Step2: Install InfluxDB
+$sudo apt-get update && sudo apt-get install influxdb
+$sudo service influxdb start
+
+Step3: Verify InfluxDB
+$curl "http://localhost:8086/query?q=show+databases"
+Result-->{"results":[{"statement_id":0,"series":[{"name":"databases","columns":["name"],"values":[["_internal"]]}]}]}
+
+Step5: Install Telegraf, https://docs.influxdata.com/telegraf/v1.11/introduction/installation/	--> Install telegraf
+$sudo apt-get update && sudo apt-get install telegraf
+$sudo service telegraf start
+
+Step5: Verify Telegraf
+$curl "http://localhost:8086/query?q=select+*+from+telegraf..cpu"
+Result-->{"results":[{"statement_id":0,"series":[{"name":"cpu","columns"...
+
+Step6: Creat User Admin
+$influx
+> CREATE USER "admin" WITH PASSWORD 'admin_passwd' WITH ALL PRIVILEGES
+> SHOW USERS
+> EXIT
+** In thsi step, we just add new user to influxdb, but not enable the Auth yet. Because for reduce complexity of training project.
+We will enable Auth on Step:11
+
+Step7: Connect mqtt-telegraf-influxdb
+edit telegraf config
+vi /etc/telegraf/telegraf.conf
+###
+[[inputs.mqtt_consumer]]
+   servers = ["xxx.xxx.xxx.xxx:1883"] #<-- IP ของ mqtt server
+   qos = 0
+   connection_timeout = "30s"
+   topics = ["env",] #<-- topic ที่เราต้องการดึงข้อมูลมา
+   username = "xxx" #<-- username ของ mqtt server
+   password = "xxx" #<-- password ของ mqtt server
+   data_format = "influx" #<-- รูปแบบของ Data ที่ต้องการดึง
+###
+[[outputs.influxdb]] #<-- ใช้เขียนข้อมูล System Stat ลง InfluxDB โดยเก็บที่านข้อมูล telegraf
+  urls = ["http://localhost:8086"] # required
+  database = "telegraf" # required
+  retention_policy = ""
+  write_consistency = "any"
+  timeout = "5s"
+  username = "xxx"  #<-- username ของ InfluxDB
+  password = "xxx"  #<-- password ของ InfluxDB
+  namedrop = ["env*"] #<-- ให้ drop ข้อมูลที่ขึ้นต้นด้วย env ซึ่งเป็น measurement  
+[[outputs.influxdb]] #<-- ใช้เขียนข้อมูล System Stat ลง InfluxDB โดยเก็บที่านข้อมูล telegraf
+  urls = ["http://localhost:8086"] # required
+  database = "telegraf" # required
+  retention_policy = ""
+  write_consistency = "any"
+  timeout = "5s"
+  username = "xxx"  #<-- username ของ InfluxDB
+  password = "xxx"  #<-- password ของ InfluxDB
+  namedrop = ["env*"] #<-- ให้ drop ข้อมูลที่ขึ้นต้นด้วย env ซึ่งเป็น measurement  
+[[outputs.influxdb]]
+  urls = ["http://localhost:8086"]
+  database = "envdb" # required
+  retention_policy = ""
+  write_consistency = "any"
+  timeout = "5s"
+  username = "xxx"
+  password = "xxx"
+  namepass = ["env*"]
+###
+Restart telegraf service
+Find bitnami password --> https://docs.bitnami.com/aws/faq/get-started/find-credentials/
+Or
+$ cat bitnami_application_password
+result --> ex. Fow0AJ3FQDKg
+# systemctl daemon-reload -->  On AWS, skip this command
+$ sudo systemctl restart telegraf
+$ sudo systemctl status telegraf
+
+Step8: Test connection between mqtt and influx
+1. Import sample node-red clip board from sample1.json
+2. Check result
+
+bitnami@ip-172-26-6-250:~$ influx
+Connected to http://localhost:8086 version 1.7.7
+InfluxDB shell version: 1.7.7
+> show databases
+name: databases
+name
+----
+_internal
+telegraf
+envdb
+> use envdb
+Using database envdb
+> show measurements
+name: measurements
+name
+----
+env
+> show tag keys on "envdb"
+name: env
+tagKey
+------
+host
+location
+topic
+> show tag values on "envdb" with key="topic"
+name: env
+key   value
+---   -----
+topic env
+> show field keys on "envdb" from "env"
+name: env
+fieldKey fieldType
+-------- ---------
+temp     float
+> exit
+
+Step9: Test direct insert data to InfluxDB on AWS (EC2 or Light Sail)
+In telegraf.conf there are ,url = ["http://127.0.0.1:8086] so we need to add firewall rule to aws instance. Go to instance->manage->network->add rule
+1. Import sample node-red clip board from sample2.json
+2. Check result follow 8.2
+
+Step10: Test Query data from influxDB
+1. Import sample node-red clip board from sample3.json
+2. Check query result
+
+Step11: Enable Auth on InfluxDB
+1. Edit /etc/influxdb/influxdb.conf
+### 
+[auth-enabled] = true
+###
+$sudo systemctl restart influxdb
+2. Check result follow 8.2 with username and password
+$ influx -username <username> -password <password> 
+3. Add username and password to node-red flow.
+
+Step12: Install mosquitto on AWS 
+--> https://www.vultr.com/docs/how-to-install-mosquitto-mqtt-broker-server-on-ubuntu-16-04
+https://medium.com/@eranda/setting-up-authentication-on-mosquitto-mqtt-broker-de5df2e29afc
+1. Installing
+$ sudo apt-get update
+$ sudo apt-get install mosquitto
+$ sudo apt-get install mosquitto-clients --> For Clients and Test, skip this step if you don't use
+** Do not foget to add firewall rule
+2. Set username and password
+$ sudo stop mosquitto
+$ sudo mosquitto_passwd -c /etc/mosquitto/passwd <user_name>
+$ sudo vi /etc/mosquitto/mosquitto.conf
+Add following line:
+#
+password_file /etc/mosquitto/passwd
+allow_anonymous false
+#
+Allow_anonymous false” is used to prevent, clients without username and password to connecting to the broker.
+Start the broker
+$ sudo service mosquitto restart
+Check result
+$ mosquitto_sub -h localhost -p 1883 -t myTopic -u <user_name> -P <password>
+Result if wrong username or passwordmosquitto_sub -h localhost -p 1883 -t myTopic -u "chp" -P "testpassword"
+Connection Refused: not authorised.
+Connection Refused: not authorised.
+Connection Refused: not authorised.
+Connection Refused: not authorised.
+Connection Refused: not authorised.
+Connection Refused: not authorised.
+
+Step13: Install Grafana
+$ sudo apt-get install grafana
+$ sudo systemctl start grafana-server
+$ sudo systemctl status grafana-server
+** Do not foget to add firewall rule
+Open web browser and direct to http://<server_ip>:3000
+
+Step14: Install Node-Red
+$ sudo npm install -g --unsafe-perm node-red
+$ sudo node-red
+Set username and password for flow editor
+!! Please check how to "Generate bcrypt password"
+$ cd cd /home/bitnami/.node-red/
+$ vi settings.js
+Follow https://nodered.org/docs/user-guide/runtime/securing-node-red
+Or add following line
+###
+adminAuth: {
+    type: "credentials",
+    users: [
+        {
+            username: "admin",
+            password: "Hash passwd1",
+            permissions: "*"
+        },
+    ]
+}
+###
+Set username and password for node-red ui
+$ vi settings.js
+Add following line
+###
+httpNodeAuth: {user:"user",pass:"hash passwd2"},
+###
+
+Kill node-red process then ($ps -A, $ kill <node-red PID>)
+$ sudo node-red
+
+Step14: Install Mysql
+https://support.rackspace.com/how-to/installing-mysql-server-on-ubuntu/
+Create user with username: "admin", password: "0x00ff0000"
+Grant all privilage
+
+List user
+
+
+#enable remot access:
+$cd /etc/mysql/mysql.conf.d
+mysqld.cnf
+bind-address = 127.0.0.1
+to:
+bind-address = 0.0.0.0
+Save and close that file. Restart the MySQL server with the command:
+
+systemctl restart mysql.service
+
+Step14.2 Install node.js
+#sudo
+sudo apt-get install nodejs-legacy
+sudo apt-get install npm
+module for web server (No need to custom install)
+{
+	npm install mysql --save
+	npm install express --save
+	npm install jwt-simple --save
+	npm install body-parser --save
+	npm install passport --save
+	npm install passport-jwt --save
+	npm install --save influx
+}
+Custom install
+$ sudo npm install -g node-gyp node-pre-gyp 
+$ sudo npm install bcrypt --unsafe-perm
+
+npm install -g nodemon
+
+Step15: Run web server
+$ git clone https://github.com/chp-lab/mysql.git
+$ cd mysql
+$ sudo node index.js
+
+Check port in use
+$ sudo lsof -t -i:81
+$ sudo kill <pid>
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
