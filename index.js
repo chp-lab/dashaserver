@@ -205,6 +205,8 @@ const loginMiddleware = (req, res, next) => {
 				});
 				*/
 				
+				// https://www.browserling.com/tools/bcrypt
+				
 				bcrypt.compare(req.body.password, checkPassword, function(err, pass) {
 					if(pass) 
 					{
