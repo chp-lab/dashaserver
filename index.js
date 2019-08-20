@@ -196,7 +196,7 @@ const loginMiddleware = (req, res, next) => {
 					console.log("unknow error ocurred!");
 				}
 				
-				// bcrypt 4 round
+				// bcrypt 10 round
 				// https://www.devglan.com/online-tools/bcrypt-hash-generator
 				// Sample hash source code
 				/*
