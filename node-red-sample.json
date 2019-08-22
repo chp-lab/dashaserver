@@ -1,36 +1,8 @@
 [
     {
-        "id": "43f51ae7.d74164",
-        "type": "mqtt out",
-        "z": "191b90a.ae59d6f",
-        "name": "",
-        "topic": "influx/mm19070001",
-        "qos": "0",
-        "retain": "false",
-        "broker": "80b2ed18.52e7c",
-        "x": 630,
-        "y": 120,
-        "wires": []
-    },
-    {
-        "id": "9b7cd432.ff97f8",
-        "type": "debug",
-        "z": "191b90a.ae59d6f",
-        "name": "",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "payload",
-        "targetType": "msg",
-        "x": 630,
-        "y": 40,
-        "wires": []
-    },
-    {
-        "id": "71c1dc57.807f34",
+        "id": "b90d9443.055f78",
         "type": "inject",
-        "z": "191b90a.ae59d6f",
+        "z": "3c4ce140.fe94be",
         "name": "",
         "topic": "",
         "payload": "",
@@ -39,239 +11,65 @@
         "crontab": "",
         "once": false,
         "onceDelay": 0.1,
-        "x": 190,
-        "y": 260,
+        "x": 170,
+        "y": 180,
         "wires": [
             [
-                "19bca5e6.e9f4da"
+                "a096e04c.0f18a"
             ]
         ]
     },
     {
-        "id": "19bca5e6.e9f4da",
+        "id": "a096e04c.0f18a",
         "type": "function",
-        "z": "191b90a.ae59d6f",
-        "name": "influx line protocol",
-        "func": "var curHumid = (50 + 20*Math.random()).toFixed(2);\nvar curTemp = (20 + 5*Math.random()).toFixed(2);\n// timestamp must belong to measurement time\n// uts is UTC timestamp\n// Bangkok, Jakarta must +07:00 hours\nvar uts = (Math.floor(Date.now())).toString();\nmsg.payload = \"mm19070002,location=Sadao humid=\" + curHumid +  \",temp=\" + curTemp + \" \" + uts + \"000000\";\nreturn msg;",
-        "outputs": 1,
-        "noerr": 0,
-        "x": 390,
-        "y": 260,
-        "wires": [
-            [
-                "942aa8bd.80abe8",
-                "9ef425b3.e66758"
-            ]
-        ]
-    },
-    {
-        "id": "942aa8bd.80abe8",
-        "type": "debug",
-        "z": "191b90a.ae59d6f",
-        "name": "",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "payload",
-        "targetType": "msg",
-        "x": 590,
-        "y": 240,
-        "wires": []
-    },
-    {
-        "id": "9ef425b3.e66758",
-        "type": "mqtt out",
-        "z": "191b90a.ae59d6f",
-        "name": "",
-        "topic": "influx/mm19070002",
-        "qos": "0",
-        "retain": "false",
-        "broker": "80b2ed18.52e7c",
-        "x": 610,
-        "y": 280,
-        "wires": []
-    },
-    {
-        "id": "f8711be5.66b628",
-        "type": "inject",
-        "z": "191b90a.ae59d6f",
-        "name": "",
-        "topic": "",
-        "payload": "",
-        "payloadType": "date",
-        "repeat": "60",
-        "crontab": "",
-        "once": false,
-        "onceDelay": 0.1,
-        "x": 190,
-        "y": 360,
-        "wires": [
-            [
-                "37705aa4.b33eb6"
-            ]
-        ]
-    },
-    {
-        "id": "37705aa4.b33eb6",
-        "type": "function",
-        "z": "191b90a.ae59d6f",
-        "name": "influx line protocol",
-        "func": "var i = (7 + 3*Math.random()).toFixed(2);\nvar v = (200 + 20*Math.random()).toFixed(2);\nvar pf = (0.5 + 0.5*Math.random()).toFixed(2);\n\nvar p = (i*v*pf).toFixed(2);\n// timestamp must belong to measurement time\n// uts is UTC timestamp\n// Bangkok, Jakarta must +07:00 hours\nvar uts = (Math.floor(Date.now())).toString();\n\n//msg.payload = \"mm19070003,location=Sadao humid=\" + curHumid +  \",temp=\" + curTemp + \" \" + msg.payload + \"000000\";\nmsg.payload = `mm19070003,location=Hatyai I=${i},V=${v},PF=${pf},P=${p} ${uts}000000`;\n\nreturn msg;",
-        "outputs": 1,
-        "noerr": 0,
-        "x": 390,
-        "y": 360,
-        "wires": [
-            [
-                "11f7a699.971bc9",
-                "8fef11ea.07b44"
-            ]
-        ]
-    },
-    {
-        "id": "11f7a699.971bc9",
-        "type": "debug",
-        "z": "191b90a.ae59d6f",
-        "name": "",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "payload",
-        "targetType": "msg",
-        "x": 590,
-        "y": 340,
-        "wires": []
-    },
-    {
-        "id": "8fef11ea.07b44",
-        "type": "mqtt out",
-        "z": "191b90a.ae59d6f",
-        "name": "",
-        "topic": "influx/mm19070003",
-        "qos": "0",
-        "retain": "false",
-        "broker": "80b2ed18.52e7c",
-        "x": 610,
-        "y": 380,
-        "wires": []
-    },
-    {
-        "id": "44522f9f.fcdce",
-        "type": "function",
-        "z": "191b90a.ae59d6f",
+        "z": "3c4ce140.fe94be",
         "name": "influx line protocol",
         "func": "var curHumid = (50 + 20*Math.random()).toFixed(2);\nvar curTemp = (20 + 5*Math.random()).toFixed(2);\n// timestamp must belong to measurement time\n// uts is UTC timestamp\n// Bangkok, Jakarta must +07:00 hours\nvar uts = (Math.floor(Date.now())).toString();\nmsg.payload = \"mm19070001,location=Sadao humid=\" + curHumid +  \",temp=\" + curTemp + \" \" + uts + \"000000\";\nreturn msg;",
         "outputs": 1,
         "noerr": 0,
-        "x": 390,
-        "y": 160,
+        "x": 370,
+        "y": 180,
         "wires": [
             [
-                "43f51ae7.d74164",
-                "9b7cd432.ff97f8"
+                "5cfa7e8b.65124",
+                "b0640698.6168e8"
             ]
         ]
     },
     {
-        "id": "ff386687.9fc688",
-        "type": "inject",
-        "z": "191b90a.ae59d6f",
+        "id": "5cfa7e8b.65124",
+        "type": "mqtt out",
+        "z": "3c4ce140.fe94be",
         "name": "",
-        "topic": "",
-        "payload": "",
-        "payloadType": "date",
-        "repeat": "60",
-        "crontab": "",
-        "once": false,
-        "onceDelay": 0.1,
-        "x": 190,
-        "y": 160,
-        "wires": [
-            [
-                "44522f9f.fcdce"
-            ]
-        ]
+        "topic": "influx/mm<your mid>",
+        "qos": "0",
+        "retain": "false",
+        "broker": "80b2ed18.52e7c",
+        "x": 640,
+        "y": 200,
+        "wires": []
     },
     {
-        "id": "e57ce99c.a3b868",
-        "type": "mqtt in",
-        "z": "191b90a.ae59d6f",
+        "id": "b0640698.6168e8",
+        "type": "debug",
+        "z": "3c4ce140.fe94be",
         "name": "",
-        "topic": "room1/temp",
-        "qos": "2",
-        "datatype": "auto",
-        "broker": "d2128577.0614a8",
-        "x": 190,
-        "y": 40,
-        "wires": [
-            [
-                "7f7d4132.38c4e"
-            ]
-        ]
-    },
-    {
-        "id": "2ddfa6c.643c15a",
-        "type": "mqtt in",
-        "z": "191b90a.ae59d6f",
-        "name": "",
-        "topic": "room1/humid",
-        "qos": "2",
-        "datatype": "auto",
-        "broker": "d2128577.0614a8",
-        "x": 190,
-        "y": 100,
-        "wires": [
-            [
-                "7f7d4132.38c4e"
-            ]
-        ]
-    },
-    {
-        "id": "7f7d4132.38c4e",
-        "type": "function",
-        "z": "191b90a.ae59d6f",
-        "name": "influx line protocol",
-        "func": "var curHumid = context.get(\"humid\")||0;\nvar curTemp = context.get(\"temp\")||0;\nvar value = msg.payload;\n// timestamp must belong to measurement time\n// uts is UTC timestamp\n// Bangkok, Jakarta must +07:00 hours\nvar uts = (Math.floor(Date.now())).toString();\n\nif(msg.topic === \"room1/humid\")\n{\n    context.set(\"humid\", value);\n}\nelse if(msg.topic === \"room1/temp\")\n{\n    context.set(\"temp\", value);\n}\n\nif((curHumid !== 0) && (curTemp !== 0))\n{\n    msg.payload = \"mm19070001,location=Sadao humid=\" + curHumid +  \",temp=\" + curTemp + \" \" + uts + \"000000\";\n    return msg;\n}\n",
-        "outputs": 1,
-        "noerr": 0,
-        "x": 390,
-        "y": 40,
-        "wires": [
-            [
-                "9b7cd432.ff97f8"
-            ]
-        ]
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 630,
+        "y": 140,
+        "wires": []
     },
     {
         "id": "80b2ed18.52e7c",
         "type": "mqtt-broker",
         "z": "",
         "name": "localBroker",
-        "broker": "192.168.1.12",
-        "port": "1883",
-        "clientid": "",
-        "usetls": false,
-        "compatmode": true,
-        "keepalive": "60",
-        "cleansession": true,
-        "birthTopic": "",
-        "birthQos": "0",
-        "birthPayload": "",
-        "closeTopic": "",
-        "closeQos": "0",
-        "closePayload": "",
-        "willTopic": "",
-        "willQos": "0",
-        "willPayload": ""
-    },
-    {
-        "id": "d2128577.0614a8",
-        "type": "mqtt-broker",
-        "z": "",
-        "name": "atopMqtt",
-        "broker": "54.254.186.136",
+        "broker": "192.168.43.143",
         "port": "1883",
         "clientid": "",
         "usetls": false,
