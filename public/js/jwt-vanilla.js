@@ -25,7 +25,6 @@ function getToken()
 	  /*
 		return from server result should be JSON then etract element in here
 	  */
-	  
     } 
 	else 
 	{

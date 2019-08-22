@@ -29,7 +29,7 @@ const os = require('os');
 var jwtDecode = require('jwt-decode');
 
 const influx = new Influx.InfluxDB({
-  host: 'localhost:8086',
+  host: '54.254.186.136:8086',
   username: 'chp-lab',
   password:'atop3352',
   database: 'envdb',
@@ -250,7 +250,7 @@ const loginMiddleware = (req, res, next) => {
 
 var db_config = {
 	connectionLimit : 100,
-	host: "localhost",
+	host: "54.254.186.136",
 	user: "admin",
 	password: "0x00ff0000",
 	database: "chplab"
@@ -287,6 +287,23 @@ app.get("/index", requireJWTAuth, (req, res) => {
                 type: true,
 				message: 'authorized'			
 	});
+	
+});
+
+app.get("/adminlogin", (req, res) => {
+     res.sendFile(__dirname + "/" + "adminlogin.html");
+	
+});
+
+app.get("/administrator", (req, res) => {
+
+	console.log("receive /administrator page req");
+	
+     res.sendFile(__dirname + "/" + "administrator.html");
+	
+});
+
+app.post("/dbreq", requireJWTAuth, (req, res) => {
 	
 });
 

@@ -1,0 +1,4 @@
+release08222019
+1. Debug: APP force stop on Android 9.0+
+2. Issue: Android 9.0+ block all http trafic
+3. Solved: Allow http trafic by add permission on Manifest file..

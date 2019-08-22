@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="icon" type="image/png" href="https://raw.githubusercontent.com/chatpeth/symp/master/public/images/pie-chart.png">
+<link rel="stylesheet" type="text/css" href="/css/office.css">
+<title>chp-lab</title>
+</head>
+<body>
+    <h2>Login to dasha admin</h2>
+    <div class="ulogin">
+        <label for="username">Username</label>
+        <input id="username" type="text">
+        <label for="password">Password</label>
+        <input id="password" type="password">
+        <button id="loginBtn" onclick="manageLogin()">login</button>
+    </div>
+    <div id="result">
+    </div>
+    
+    <script>
+	// Manage login
+	// 1. Req token
+	// 2. GET User page
+	function manageLogin()
+        {
+            var loginUrl = "/index";
+  var xhr = new XMLHttpRequest();
+  var userElement = document.getElementById('username');
+  var passwordElement = document.getElementById('password');
+  var username = userElement.value;
+  var password = passwordElement.value;
+  var resultElement = document.getElementById('result');
+  var tag = "getToken: ";
+  
+  xhr.open('POST', loginUrl, true);
+  xhr.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+  xhr.addEventListener('load', function() {
+		//console.log(this.response);
+		
+		var responseObject = JSON.parse(this.response);
+		
+		if (responseObject.type) {
+		  // Store token
+		  console.log("login complete");
+		  localStorage.setItem('token', responseObject.token);
+		  window.location.assign("/administrator");
+		  /*
+			return from server result should be JSON then etract element in here
+		  */
+		} 
+		else 
+		{
+			console.log(tag + "wrong username or password!");
+			resultElement.innerHTML = 'Wrong Username or Password !';
+			passwordElement.value = '';
+		}
+	});
+
+	var sendObject = JSON.stringify({username: username, password: password});
+
+	xhr.send(sendObject);
+}
+    </script>
+    <script src="/js/jwt-vanilla.js"></script>
+</body>
+</html>
