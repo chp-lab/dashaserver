@@ -208,7 +208,7 @@ const loginMiddleware = (req, res, next) => {
 				}
 				
 				// bcrypt 10 round
-				// https://www.devglan.com/online-tools/bcrypt-hash-generator
+				//
 				// Sample hash source code
 				/*
 				bcrypt.hash('myPassword', 10, function(err, hash) {
