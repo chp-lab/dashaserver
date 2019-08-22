@@ -23,13 +23,23 @@ const bcrypt = require('bcrypt');
 
 // influxdb-web server-client comunication
 const Influx = require('influx');
-const http = require('http');
+
+// http https server
+var fs = require('fs');
+var http = require('http');
+var https = require('https');
+var privateKey  = fs.readFileSync('./sslcert/server.key', 'utf8');
+var certificate = fs.readFileSync('./sslcert/server.crt', 'utf8');
+var credentials = {key: privateKey, cert: certificate};
+var httpServer = http.createServer(app);
+var httpsServer = https.createServer(credentials, app);
+
 const os = require('os');
 // Decode jwt
 var jwtDecode = require('jwt-decode');
 
 const influx = new Influx.InfluxDB({
-  host: '54.254.186.136:8086',
+  host: 'localhost:8086',
   username: 'chp-lab',
   password:'atop3352',
   database: 'envdb',
@@ -143,7 +153,8 @@ const requireJWTAuth = passport.authenticate("jwt",{	session:false,
 														failureRedirect: '/unauthorized'
 													});
 // port for running server
-const PORT = process.env.PORT || 81;
+const HTTP_PORT = process.env.PORT || 81;
+const HTTPS_PORT = process.env.PORT || 8443;
 
 // login
 const loginMiddleware = (req, res, next) => {
@@ -250,7 +261,7 @@ const loginMiddleware = (req, res, next) => {
 
 var db_config = {
 	connectionLimit : 100,
-	host: "54.254.186.136",
+	host: "localhost",
 	user: "admin",
 	password: "0x00ff0000",
 	database: "chplab"
@@ -730,7 +741,9 @@ app.use(function (err, req, res, next) {
  * Now, we'll make sure the database exists and boot the app.
  */
 influx.getDatabaseNames().then(() => {
-    app.listen(PORT, () => console.log(`Listening on ${ PORT }`));
+	httpServer.listen(HTTP_PORT, () => console.log(`http server listen on port ${HTTP_PORT}`));
+	httpsServer.listen(HTTPS_PORT, () => console.log(`https server listen on port ${HTTPS_PORT}`));
+	
   }).catch(err => {
     console.error(err);
   });
