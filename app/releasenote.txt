@@ -4,3 +4,4 @@ release08222019
 3. Solved: Allow http trafic by add permission on Manifest file..
 4. minSdkVersion 19
 5. targetSdkVersion 29
+Dasha Android APP Source code move to https://github.com/chp-lab/dasha-app.git

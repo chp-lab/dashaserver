@@ -24,6 +24,10 @@ const bcrypt = require('bcrypt');
 // influxdb-web server-client comunication
 const Influx = require('influx');
 
+// For client on /list
+const __mqttUsername = "chp-lab";
+const __mqttPassword = "atop3352";
+
 // http https server
 var fs = require('fs');
 var http = require('http');
@@ -299,6 +303,11 @@ app.get("/index", requireJWTAuth, (req, res) => {
 				message: 'authorized'			
 	});
 	
+});
+
+app.get("/jquerry", (req, res) => {
+	console.log("/jquerry received");
+	res.sendFile(__dirname + "/myjq.html");
 });
 
 app.get("/adminlogin", (req, res) => {
@@ -609,7 +618,7 @@ app.get('/list', requireJWTAuth, function (req, res) {
 			jsonMysqlRes = JSON.parse(JSON.stringify(result));
 			console.log(jsonMysqlRes);
 			
-			res.json({type: true, machines:jsonMysqlRes, detail:tmpUsername});
+			res.json({type: true, machines:jsonMysqlRes, detail:tmpUsername, mqttUsername:__mqttUsername, mqttPassword:__mqttPassword});
 		});
 		try
 		{

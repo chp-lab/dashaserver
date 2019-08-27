@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script>
+// wait until document is finished loading
+$(document).ready(function(){
+	$("#hide_btn").click(function(){
+		$("p").hide();
+	});
+	$("#show_btn").click(function(){
+		$("p").show();
+	});
+	$("input").focus(function(){
+		$(this).css("background-color", "yellow");
+	});
+	$("input").blur(function(){
+		$(this).css("background-color", "white");
+	});
+	$("p").on({
+		mouseenter: function(){
+			$(this).css("background-color", "lightgray");
+		},
+		mouseleave: function(){
+			$(this).css("background-color", "white");
+		},
+		click: function(){
+			$(this).css("background-color", "yellow");
+		}
+	});
+});
+</script>
+</head>
+<body>
+
+<p>If you click on me, I will disappear.</p>
+<p>Click me away!</p>
+<p>Click me too!</p>
+<button id="hide_btn">Hide</button>
+<button id="show_btn">Show</button>
+Name: <input type="text" name="fullname"><br>
+Email: <input type="text" name="email">
+</body>
+</html>
