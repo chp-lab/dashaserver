@@ -512,6 +512,7 @@ app.get("/machine", requireJWTAuth, (req, res) => {
 				// Non blocking function
 				influx.query(query_cmd).then(influxResult => {
 						var jsonResult = JSON.parse(JSON.stringify(influxResult));
+						// remove this log when high querry_obj.limit
 						// console.log("!!!!!");
 						// console.log(jsonResult);
 						var resultObj = {type:true, username:jsonMysqlRes[0].username, machineID:jsonMysqlRes[0].machineID, machineName:jsonMysqlRes[0].machineName, department:jsonMysqlRes[0].department, results:jsonResult};

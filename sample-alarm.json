@@ -1,0 +1,110 @@
+[
+    {
+        "id": "5effb424.7c3fdc",
+        "type": "mqtt out",
+        "z": "691b6c83.0410bc",
+        "name": "",
+        "topic": "admin/notify/mm19070001",
+        "qos": "0",
+        "retain": "false",
+        "broker": "bd5639da.cd9158",
+        "x": 500,
+        "y": 160,
+        "wires": []
+    },
+    {
+        "id": "a1f187c2.a38da8",
+        "type": "inject",
+        "z": "691b6c83.0410bc",
+        "name": "",
+        "topic": "",
+        "payload": "Gas valve opened",
+        "payloadType": "str",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "x": 210,
+        "y": 120,
+        "wires": [
+            [
+                "5effb424.7c3fdc"
+            ]
+        ]
+    },
+    {
+        "id": "e263a179.52535",
+        "type": "inject",
+        "z": "691b6c83.0410bc",
+        "name": "",
+        "topic": "",
+        "payload": "Gas valve closed",
+        "payloadType": "str",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "x": 200,
+        "y": 200,
+        "wires": [
+            [
+                "5effb424.7c3fdc"
+            ]
+        ]
+    },
+    {
+        "id": "243ede81.9f2e42",
+        "type": "mqtt out",
+        "z": "691b6c83.0410bc",
+        "name": "",
+        "topic": "admin/alarm/mm19070001",
+        "qos": "0",
+        "retain": "false",
+        "broker": "bd5639da.cd9158",
+        "x": 500,
+        "y": 300,
+        "wires": []
+    },
+    {
+        "id": "2dca4830.ba5938",
+        "type": "inject",
+        "z": "691b6c83.0410bc",
+        "name": "",
+        "topic": "",
+        "payload": "Gas valve broken",
+        "payloadType": "str",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "x": 220,
+        "y": 300,
+        "wires": [
+            [
+                "243ede81.9f2e42"
+            ]
+        ]
+    },
+    {
+        "id": "bd5639da.cd9158",
+        "type": "mqtt-broker",
+        "z": "",
+        "name": "atopMqtt",
+        "broker": "localhost",
+        "port": "1883",
+        "clientid": "",
+        "usetls": false,
+        "compatmode": true,
+        "keepalive": "60",
+        "cleansession": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthPayload": "",
+        "closeTopic": "",
+        "closeQos": "0",
+        "closePayload": "",
+        "willTopic": "",
+        "willQos": "0",
+        "willPayload": ""
+    }
+]
