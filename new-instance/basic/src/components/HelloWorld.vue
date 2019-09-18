@@ -1,6 +1,23 @@
 <template>
   <div class="hello">
     <h1>{{ msg }}</h1>
+    <input v-model="message" />
+    <span v-if="message=='chatpeth'"><h1>Hi Peth!</h1></span>
+    <span v-else> Who are you ?</span>
+    <h2>{{ message }}</h2>
+    <ul>
+      <li v-for="(item, index) in items" :key="index">
+        {{ index + 1 }}.{{ item.inf }}
+      </li>
+    </ul>
+    <input v-model="num" number/>
+    <button @click="calculate">Calculate</button>
+    <h2> {{ result }} </h2>
+    <div class="container">
+      <form @submit.prevent="calculate">
+        <button type="submit">CAL</button>
+      </form>
+    </div>
     <p>
       For a guide and recipes on how to configure / customize this project,<br>
       check out the
@@ -35,6 +52,23 @@ export default {
   name: 'HelloWorld',
   props: {
     msg: String
+  },
+  data() {
+    return {
+      items: [
+        {inf:'first'},
+        {inf:'second'},
+        {inf:'third'}
+      ],
+      message: '',
+      num: 0,
+      result: 0
+    }
+  },
+  methods: {
+    calculate () {
+      this.result = this.num**2;
+    }
   }
 }
 </script>
