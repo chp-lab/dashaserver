@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <title>E-Pro</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios@0.12.0/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lodash@4.13.1/lodash.min.js"></script>
+  </head>
+  <body>
+    <div class="container" id="app">
+      <h1 alert alert-info>{{header}}</h1>
+      <input v-model="email">
+      <h2 v-if="count === 0">{{count}}</h2>
+      <h2 v-else-if="count === 1">{{count}}</h2>
+      <h2 v-else>{{count}}</h2>
+      <h3 v-show="show">{{show}}</h3>
+      <button class="btn btn-primary" onclick="alert('Signing in...')" type="button" name="login_btn" :disabled="email.length < 5">Login</button>
+      <h4>Email: {{email}}</h4>
+    </div>
+    <script src="./js/myvue.js"></script>
+  </body>
+</html>

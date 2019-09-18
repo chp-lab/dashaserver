@@ -580,6 +580,10 @@ app.get('/unauthorized', function (req, res) {
 	});
 });
 
+app.get('/epro', function (req, res) {
+  res.sendFile(__dirname + "/epro/index.html");
+});
+
 app.get('/list', requireJWTAuth, function (req, res) {
 	var decoded = jwtDecode(req.headers.authorization);
 	var tmpUsername = decoded.sub;
